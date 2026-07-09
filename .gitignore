@@ -1,0 +1,24 @@
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# env & secrets
+.env
+.env*.local
+
+# database (contains real family financial data — never commit)
+*.db
+*.db-journal
+/prisma/*.db
+/prisma/*.db-journal
+
+# misc
+.DS_Store
+*.pem
+npm-debug.log*

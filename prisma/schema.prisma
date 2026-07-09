@@ -1,0 +1,295 @@
+// ============================================================================
+// FWMS — Family Wealth Management System
+// Database schema (SQLite via Prisma).
+//
+// DESIGN PRINCIPLES
+//  1. Money is stored as INTEGER FILS (1 AED = 100 fils). Never floats.
+//  2. Ledger model: every balance change is a Transaction row with a SIGNED
+//     `amount` (credit positive, debit negative). An account's balance is
+//     always SUM(amount) of its transactions — never a stored, editable field.
+//  3. History is preserved, not overwritten: AssetValuation and LoanPayment
+//     keep the full trail so current values are derived and auditable.
+//  4. Everything hangs off a Household so up to 3 family members share data.
+//  5. AuditLog records who did what — cheap now, painful to retrofit later.
+//
+// NOTE ON "ENUMS": SQLite has no native ENUM type, and Prisma therefore does
+// not support `enum` on the sqlite provider. Fields that are conceptually
+// enums (role, account type, category type, transaction type, asset type) are
+// stored as String. Their allowed values live in src/lib/constants.ts and are
+// enforced by Zod validators on every write, so integrity is guaranteed at the
+// application boundary. Switching to Postgres later can promote these back to
+// real DB enums with a single migration.
+// ============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Identity & tenancy
+// ---------------------------------------------------------------------------
+
+model Household {
+  id        String   @id @default(cuid())
+  name      String
+  currency  String   @default("AED") // reserved for future multi-currency
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users        User[]
+  accounts     Account[]
+  categories   Category[]
+  transactions Transaction[]
+  assets       Asset[]
+  loans        Loan[]
+  goals        Goal[]
+  auditLogs    AuditLog[]
+}
+
+model User {
+  id           String   @id @default(cuid())
+  householdId  String
+  email        String   @unique
+  name         String
+  passwordHash String // bcrypt hash — never the raw password
+  role         String   @default("MEMBER") // UserRole: OWNER | MEMBER | VIEWER
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  household    Household     @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  transactions Transaction[] @relation("TransactionAuthor")
+  auditLogs    AuditLog[]
+
+  @@index([householdId])
+}
+
+// ---------------------------------------------------------------------------
+// Accounts & the transaction ledger  (single source of truth for cash)
+// ---------------------------------------------------------------------------
+
+model Account {
+  id          String   @id @default(cuid())
+  householdId String
+  name        String
+  type        String   @default("CHECKING") // AccountType: CHECKING | SAVINGS | CASH | WALLET | INVESTMENT | OTHER
+  currency    String   @default("AED")
+  institution String? // bank / provider name
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  household    Household     @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+  // Transactions that TRANSFER *into* this account (counterparty side).
+  transfersIn  Transaction[] @relation("TransferCounterparty")
+
+  @@index([householdId])
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  householdId String
+  name        String
+  type        String // CategoryType: INCOME | EXPENSE
+  color       String   @default("#8B9096") // silver default
+  isSystem    Boolean  @default(false) // seeded defaults vs user-created
+  createdAt   DateTime @default(now())
+
+  household    Household     @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@unique([householdId, name, type])
+  @@index([householdId])
+}
+
+model Transaction {
+  id          String @id @default(cuid())
+  householdId String
+  accountId   String
+  type        String // TransactionType: INCOME | EXPENSE | ADJUSTMENT | TRANSFER
+  // SIGNED amount in fils. The sign is enforced by the service layer:
+  // INCOME > 0, EXPENSE < 0, ADJUSTMENT either, TRANSFER matched pair.
+  amount      Int
+  // TransactionStatus: ACTIVE | VOID. A "deleted" transaction is VOIDed, not
+  // removed — it drops out of every balance/history query but the row (and
+  // its audit trail) is preserved. This is what lets a future restore or
+  // reversing-entry feature be a small addition instead of a schema change.
+  status      String  @default("ACTIVE")
+  categoryId  String? // null for ADJUSTMENT / TRANSFER
+  date        DateTime // when the money actually moved (business date)
+  description String?
+  // For TRANSFER: the counterparty account. Two rows are written (out + in),
+  // linked by `transferGroupId` so they can be edited/deleted together.
+  transferAccountId String?
+  transferGroupId   String?
+  createdById       String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  household       Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  // Restrict, not Cascade: an Account should never be hard-deletable while it
+  // still has transaction history (that would silently destroy years of
+  // records). Deactivate it via `isActive = false` instead — a future
+  // "delete account" feature must explicitly handle or refuse this case,
+  // rather than the database quietly cascading history away.
+  account         Account   @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  transferAccount Account?  @relation("TransferCounterparty", fields: [transferAccountId], references: [id], onDelete: SetNull)
+  category        Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  createdBy       User?     @relation("TransactionAuthor", fields: [createdById], references: [id], onDelete: SetNull)
+  // Set when this row was created by recording a loan payment (see LoanPayment
+  // below) — lets voidTransaction() refuse to void it independently of the
+  // loan side, which would otherwise desync the loan's derived balance.
+  loanPayment     LoanPayment?
+
+  @@index([householdId])
+  @@index([householdId, status])
+  // Composite index matching the exact shape of the hot query path
+  // (listTransactionsByType / getMonthlyFlow: household + type + status,
+  // often narrowed further by a date range) — lets SQLite satisfy it with a
+  // single index instead of combining several single-column indexes.
+  @@index([householdId, type, status, date])
+  @@index([accountId])
+  @@index([categoryId])
+  @@index([date])
+}
+
+// ---------------------------------------------------------------------------
+// Assets & valuation history
+// ---------------------------------------------------------------------------
+
+model Asset {
+  id            String    @id @default(cuid())
+  householdId   String
+  name          String
+  type          String // AssetType: REAL_ESTATE | LAND_PLOT | VEHICLE | INVESTMENT | OTHER
+  purchaseValue Int // fils
+  purchaseDate  DateTime?
+  ownership     String? // e.g. "Ahmed 50% / Sara 50%"
+  notes         String?
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  household  Household        @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  valuations AssetValuation[]
+
+  @@index([householdId])
+}
+
+// Current value is the latest valuation — history is never overwritten,
+// so appreciation/depreciation can be charted over time.
+model AssetValuation {
+  id            String   @id @default(cuid())
+  assetId       String
+  value         Int // fils
+  valuationDate DateTime
+  source        String? // "estimate", "appraisal", "market", ...
+  createdAt     DateTime @default(now())
+
+  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  // Composite, not two separate indexes: every real query here is "the
+  // latest valuation for THIS asset" (WHERE assetId = ? ORDER BY
+  // valuationDate DESC LIMIT 1) — one index matching that shape serves it
+  // directly instead of relying on two single-column indexes plus an
+  // in-memory sort.
+  @@index([assetId, valuationDate])
+}
+
+// ---------------------------------------------------------------------------
+// Loans & payment history
+// ---------------------------------------------------------------------------
+
+model Loan {
+  id             String @id @default(cuid())
+  householdId    String
+  name           String
+  lender         String?
+  originalAmount Int // fils
+  // Remaining balance is DERIVED: openingBalance - SUM(payment.principal).
+  // Stored here only as a seed/opening figure for loans started before FWMS.
+  openingBalance Int // fils — balance at the moment tracking began
+  monthlyPayment Int? // fils
+  interestRate   Float? // annual %, e.g. 4.5
+  startDate      DateTime?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  household Household     @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  payments  LoanPayment[]
+
+  @@index([householdId])
+}
+
+model LoanPayment {
+  id          String   @id @default(cuid())
+  loanId      String
+  amount      Int // total paid, fils
+  principal   Int // portion reducing balance, fils
+  interest    Int // portion to interest, fils
+  paymentDate DateTime
+  note        String?
+  createdAt   DateTime @default(now())
+
+  // The ledger Transaction (type EXPENSE) this payment created against a cash
+  // account. Optional so old rows (recorded before this link existed) still
+  // load fine; new payments always set it. onDelete: SetNull because we never
+  // hard-delete transactions (only void), but a payment shouldn't itself
+  // become unloadable if that ever changed.
+  transactionId String?      @unique
+  transaction   Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+
+  loan Loan @relation(fields: [loanId], references: [id], onDelete: Cascade)
+
+  @@index([loanId])
+  @@index([paymentDate])
+}
+
+// ---------------------------------------------------------------------------
+// Goals (schema reserved now; UI arrives in a later phase)
+// ---------------------------------------------------------------------------
+
+model Goal {
+  id            String    @id @default(cuid())
+  householdId   String
+  name          String
+  targetAmount  Int // fils
+  currentAmount Int       @default(0) // fils (manually tracked for MVP)
+  targetDate    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  @@index([householdId])
+}
+
+// ---------------------------------------------------------------------------
+// Audit trail
+// ---------------------------------------------------------------------------
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  householdId String
+  userId      String?
+  action      String // "CREATE" | "UPDATE" | "DELETE"
+  entity      String // "Transaction" | "Asset" | ...
+  entityId    String
+  summary     String? // human-readable one-liner
+  createdAt   DateTime @default(now())
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  // SetNull, explicit: removing a user should never block, or worse cascade
+  // away, the audit trail they left behind.
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([householdId])
+  @@index([entity, entityId])
+}
