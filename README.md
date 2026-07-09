@@ -1,14 +1,14 @@
-# 💰 FWMS
+# FWMS
 
 # Family Wealth Management System
 
-> **A private, self-hosted family financial intelligence dashboard.**
+> **A private, self-hosted family financial analytics dashboard.**
 > Track wealth, accounts, income, expenses, assets, and liabilities from your own machine.
 > No cloud dependency. No external AI. No paid APIs.
 
 ---
 
-## 🧠 Overview
+##  Overview
 
 FWMS is a personal wealth management platform designed around one principle:
 
@@ -20,9 +20,9 @@ Every balance, net worth calculation, liability, and cash flow figure is calcula
 
 ---
 
-# ✨ Features
+# Features
 
-## 📊 Wealth Dashboard
+## Wealth Dashboard
 
 A central view of your family's financial position:
 
@@ -56,7 +56,7 @@ Opening balances are recorded as ledger adjustments, maintaining a complete fina
 
 ---
 
-## 💵 Income & Expense Tracking
+##  Income & Expense Tracking
 
 A unified transaction engine powers:
 
@@ -76,7 +76,7 @@ Security features:
 
 ---
 
-## 🏠 Asset Management
+## Asset Management
 
 Track:
 
@@ -95,7 +95,7 @@ Assets support:
 
 ---
 
-## 🏦 Loan Management
+## Loan Management
 
 FWMS tracks:
 
@@ -115,7 +115,7 @@ This prevents inconsistent loan records.
 
 ---
 
-# 🏗️ Architecture
+# Architecture
 
 FWMS follows a layered architecture:
 
@@ -189,7 +189,7 @@ Audit Log
 
 ---
 
-# 🔐 Security
+# Security
 
 FWMS includes:
 
@@ -221,7 +221,7 @@ The application is designed to run on a trusted local machine or private network
 
 ---
 
-# 🚀 Installation
+#  Installation
 
 ## Requirements
 
@@ -283,7 +283,7 @@ http://localhost:3000
 
 ---
 
-# 👤 Demo Accounts
+#  Demo Accounts
 
 Development accounts:
 
@@ -296,7 +296,7 @@ Development accounts:
 
 ---
 
-# 🧪 Testing
+#  Testing
 
 FWMS includes unit and integration testing.
 
@@ -325,7 +325,7 @@ Current status:
 
 ---
 
-# 📁 Project Structure
+# Project Structure
 
 ```
 src/
@@ -361,9 +361,9 @@ tests/
 
 ---
 
-# 🗺️ Roadmap
+# Roadmap
 
-## Completed ✅
+## Completed 
 
 * Authentication system
 * Household accounts
@@ -379,7 +379,7 @@ tests/
 
 ---
 
-## Future Development 🚧
+## Future Development
 
 ### Phase 4
 
