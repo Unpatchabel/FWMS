@@ -253,11 +253,11 @@ The application is designed to run on a trusted local machine or private network
 Clone the repository:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/FWMS.git
+git clone https://github.com/Unpatchabel/FWMS.git
 cd FWMS
 ```
 
-Install dependencies:
+Install dependencies (on Windows PowerShell, use `npm.cmd` in place of `npm` if script execution is disabled):
 
 ```bash
 npm install
@@ -269,23 +269,26 @@ Create environment:
 cp .env.example .env
 ```
 
-Generate authentication secret:
+Set `FWMS_OWNER_EMAIL` and `FWMS_OWNER_PASSWORD` in `.env` to your own email
+and a unique password of at least 12 characters. Generate an authentication secret
+and set `AUTH_SECRET` in `.env`:
 
 ```bash
 openssl rand -base64 48
 ```
 
-Run database migration:
+Set up a fresh database and create your owner login:
 
 ```bash
-npm run db:migrate
+npm run setup
 ```
 
-Load sample data:
-
-```bash
-npm run db:seed
-```
+Setup creates one OWNER and the default income/expense categories. Accounts,
+transactions, assets, loans, and goals start empty. It refuses to seed an
+existing household and does not delete existing data. Each installation uses
+its own local SQLite database; your GitHub repository contains no `.db` file.
+After setup, remove `FWMS_OWNER_PASSWORD` from `.env`; your hashed password
+is stored in the local database and the setup password is no longer needed.
 
 Start application:
 
@@ -301,16 +304,10 @@ http://localhost:3000
 
 ---
 
-#  Demo Accounts
+#  Sign in
 
-Development accounts:
-
-| Account | Email                                         | Password    | Role   |
-| ------- | --------------------------------------------- | ----------- | ------ |
-| Owner   | [owner@fwms.local](mailto:owner@fwms.local)   | changeme123 | OWNER  |
-| Member  | [member@fwms.local](mailto:member@fwms.local) | changeme123 | MEMBER |
-
-⚠️ Change these credentials before real usage.
+Use the owner email and password you set in your local `.env` file. Do not
+commit `.env` or your SQLite database to Git.
 
 ## Family access
 

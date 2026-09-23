@@ -1,346 +1,49 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
-/**
- * Creates a demo household with sample financial data.
- *
- * This script only runs against an empty database. It never deletes
- * existing household data.
- *
- * Amounts are written in whole AED via aed() and stored as integer fils.
- */
+// Bootstrap an empty installation. Never overwrite an existing household.
 const prisma = new PrismaClient();
 
-const aed = (n: number) => Math.round(n * 100); // AED -> fils
-
-function daysAgo(n: number): Date {
-  const d = new Date();
-  d.setDate(d.getDate() - n);
-  return d;
-}
-
-function thisMonth(day: number): Date {
-  const d = new Date();
-  return new Date(d.getFullYear(), d.getMonth(), day);
-}
-
-function lastMonth(day: number): Date {
-  const d = new Date();
-  return new Date(d.getFullYear(), d.getMonth() - 1, day);
-}
-
 async function main() {
-  const existingHouseholds = await prisma.household.count();
-  if (existingHouseholds > 0) {
-    throw new Error("Seed refused: this database already contains data.");
+  if (await prisma.household.count()) {
+    throw new Error("Setup stopped: this database already has a household. Existing data was not changed.");
   }
 
-  console.log("Creating household\u2026");
-  const household = await prisma.household.create({
-    data: { name: "The Family", currency: "AED" },
-  });
+  const email = process.env.FWMS_OWNER_EMAIL?.trim().toLowerCase();
+  const password = process.env.FWMS_OWNER_PASSWORD;
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !password || password.length < 12) {
+    throw new Error("Set FWMS_OWNER_EMAIL and FWMS_OWNER_PASSWORD (at least 12 characters) in .env before setup.");
+  }
 
-  console.log("Creating users\u2026");
-  const passwordHash = await bcrypt.hash("changeme123", 12);
-  await prisma.user.createMany({
-    data: [
-      {
+  const passwordHash = await bcrypt.hash(password, 12);
+  await prisma.$transaction(async (tx) => {
+    const household = await tx.household.create({
+      data: { name: "My finances", currency: "AED" },
+    });
+
+    await tx.user.create({
+      data: {
         householdId: household.id,
-        email: "owner@fwms.local",
-        name: "Family Owner",
+        email,
+        name: "Owner",
         passwordHash,
         role: "OWNER",
       },
-      {
-        householdId: household.id,
-        email: "member@fwms.local",
-        name: "Family Member",
-        passwordHash,
-        role: "MEMBER",
-      },
-    ],
+    });
+
+    const income = ["Salary", "Business", "Rental", "Investment", "Other"];
+    const expense = ["Food", "Bills", "Transport", "Education", "Healthcare", "Shopping", "Other"];
+    await tx.category.createMany({
+      data: [
+        ...income.map((name) => ({ householdId: household.id, name, type: "INCOME", color: "#12876A", isSystem: true })),
+        ...expense.map((name) => ({ householdId: household.id, name, type: "EXPENSE", color: "#B4462F", isSystem: true })),
+      ],
+    });
   });
 
-  console.log("Creating categories\u2026");
-  const incomeCats = ["Salary", "Business", "Rental", "Investment", "Other"];
-  const expenseCats = [
-    "Food",
-    "Bills",
-    "Transport",
-    "Education",
-    "Healthcare",
-    "Shopping",
-    "Other",
-  ];
-
-  await prisma.category.createMany({
-    data: [
-      ...incomeCats.map((name) => ({
-        householdId: household.id,
-        name,
-        type: "INCOME" as const,
-        color: "#12876A",
-        isSystem: true,
-      })),
-      ...expenseCats.map((name) => ({
-        householdId: household.id,
-        name,
-        type: "EXPENSE" as const,
-        color: "#B4462F",
-        isSystem: true,
-      })),
-    ],
-  });
-
-  const cats = await prisma.category.findMany({
-    where: { householdId: household.id },
-  });
-  const cat = (name: string) => cats.find((c) => c.name === name)!.id;
-
-  console.log("Creating accounts + opening balances\u2026");
-  const checking = await prisma.account.create({
-    data: {
-      householdId: household.id,
-      name: "Emirates NBD Checking",
-      type: "CHECKING",
-      institution: "Emirates NBD",
-    },
-  });
-
-  const savings = await prisma.account.create({
-    data: {
-      householdId: household.id,
-      name: "Savings",
-      type: "SAVINGS",
-      institution: "Emirates NBD",
-    },
-  });
-
-  const cash = await prisma.account.create({
-    data: { householdId: household.id, name: "Cash Wallet", type: "CASH" },
-  });
-
-  // Opening balances are ledger adjustments, not stored account balances.
-  await prisma.transaction.createMany({
-    data: [
-      {
-        householdId: household.id,
-        accountId: checking.id,
-        type: "ADJUSTMENT",
-        amount: aed(42000),
-        date: daysAgo(60),
-        description: "Opening balance",
-      },
-      {
-        householdId: household.id,
-        accountId: savings.id,
-        type: "ADJUSTMENT",
-        amount: aed(180000),
-        date: daysAgo(60),
-        description: "Opening balance",
-      },
-      {
-        householdId: household.id,
-        accountId: cash.id,
-        type: "ADJUSTMENT",
-        amount: aed(3500),
-        date: daysAgo(60),
-        description: "Opening balance",
-      },
-    ],
-  });
-
-  console.log("Creating sample income & expenses\u2026");
-  await prisma.transaction.createMany({
-    data: [
-      // This month — income
-      {
-        householdId: household.id,
-        accountId: checking.id,
-        type: "INCOME",
-        amount: aed(28000),
-        categoryId: cat("Salary"),
-        date: thisMonth(1),
-        description: "Monthly salary",
-      },
-      {
-        householdId: household.id,
-        accountId: checking.id,
-        type: "INCOME",
-        amount: aed(6500),
-        categoryId: cat("Rental"),
-        date: thisMonth(3),
-        description: "Apartment rent received",
-      },
-      // This month — expenses
-      {
-        householdId: household.id,
-        accountId: checking.id,
-        type: "EXPENSE",
-        amount: -aed(3200),
-        categoryId: cat("Food"),
-        date: thisMonth(5),
-        description: "Groceries",
-      },
-      {
-        householdId: household.id,
-        accountId: checking.id,
-        type: "EXPENSE",
-        amount: -aed(1800),
-        categoryId: cat("Bills"),
-        date: thisMonth(6),
-        description: "DEWA + Etisalat",
-      },
-      {
-        householdId: household.id,
-        accountId: cash.id,
-        type: "EXPENSE",
-        amount: -aed(950),
-        categoryId: cat("Transport"),
-        date: thisMonth(7),
-        description: "Fuel + Salik",
-      },
-      {
-        householdId: household.id,
-        accountId: checking.id,
-        type: "INCOME",
-        amount: aed(2000),
-        categoryId: cat("Investment"),
-        date: thisMonth(4),
-        description: "Dividend payout",
-      },
-      {
-        householdId: household.id,
-        accountId: checking.id,
-        type: "EXPENSE",
-        amount: -aed(650),
-        categoryId: cat("Shopping"),
-        date: thisMonth(8),
-        description: "Clothing",
-      },
-      // Last month
-      {
-        householdId: household.id,
-        accountId: checking.id,
-        type: "INCOME",
-        amount: aed(28000),
-        categoryId: cat("Salary"),
-        date: lastMonth(1),
-        description: "Monthly salary",
-      },
-      {
-        householdId: household.id,
-        accountId: checking.id,
-        type: "EXPENSE",
-        amount: -aed(4100),
-        categoryId: cat("Food"),
-        date: lastMonth(8),
-        description: "Groceries + dining",
-      },
-    ],
-  });
-
-  console.log("Creating assets + valuations\u2026");
-  const villa = await prisma.asset.create({
-    data: {
-      householdId: household.id,
-      name: "Villa \u2014 Al Barsha",
-      type: "REAL_ESTATE",
-      purchaseValue: aed(2600000),
-      purchaseDate: new Date("2019-05-01"),
-      ownership: "Family (100%)",
-    },
-  });
-
-  await prisma.assetValuation.create({
-    data: {
-      assetId: villa.id,
-      value: aed(3150000),
-      valuationDate: daysAgo(30),
-      source: "estimate",
-    },
-  });
-
-  const car = await prisma.asset.create({
-    data: {
-      householdId: household.id,
-      name: "Toyota Land Cruiser",
-      type: "VEHICLE",
-      purchaseValue: aed(240000),
-      purchaseDate: new Date("2022-02-01"),
-      ownership: "Family (100%)",
-    },
-  });
-
-  await prisma.assetValuation.create({
-    data: {
-      assetId: car.id,
-      value: aed(185000),
-      valuationDate: daysAgo(15),
-      source: "estimate",
-    },
-  });
-
-  console.log("Creating loan + payment\u2026");
-  const mortgage = await prisma.loan.create({
-    data: {
-      householdId: household.id,
-      name: "Home Mortgage",
-      lender: "Emirates NBD",
-      originalAmount: aed(1800000),
-      openingBalance: aed(1250000),
-      monthlyPayment: aed(9500),
-      interestRate: 4.2,
-      startDate: new Date("2019-06-01"),
-    },
-  });
-
-  // Link the loan payment to the account debit, as the application does.
-  const loanPaymentCategory = await prisma.category.create({
-    data: {
-      householdId: household.id,
-      name: "Loan Payment",
-      type: "EXPENSE",
-      isSystem: true,
-    },
-  });
-
-  const mortgagePaymentDate = thisMonth(2);
-  const mortgageTransaction = await prisma.transaction.create({
-    data: {
-      householdId: household.id,
-      accountId: checking.id,
-      type: "EXPENSE",
-      amount: -aed(9500),
-      categoryId: loanPaymentCategory.id,
-      date: mortgagePaymentDate,
-      description: "Loan payment \u2014 Home Mortgage",
-    },
-  });
-
-  await prisma.loanPayment.create({
-    data: {
-      loanId: mortgage.id,
-      amount: aed(9500),
-      principal: aed(5200),
-      interest: aed(4300),
-      paymentDate: mortgagePaymentDate,
-      note: "Monthly instalment",
-      transactionId: mortgageTransaction.id,
-    },
-  });
-
-  console.log("\nSeed complete.");
-  console.log("Login with:");
-  console.log("  owner@fwms.local  / changeme123  (OWNER)");
-  console.log("  member@fwms.local / changeme123  (MEMBER)");
+  console.log(`Empty FWMS household created for ${email}. Sign in with the password from .env.`);
 }
 
 main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+  .catch((error) => { console.error(error); process.exitCode = 1; })
+  .finally(async () => { await prisma.$disconnect(); });
