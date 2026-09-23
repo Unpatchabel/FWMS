@@ -20,29 +20,6 @@ export type LoginInput = z.infer<typeof loginSchema>;
 const newPassword = z.string().min(12, "Use at least 12 characters")
   .refine((value) => new TextEncoder().encode(value).length <= 72, "Use at most 72 bytes");
 
-export const familyMemberCreateSchema = z.object({
-  name: z.string().trim().min(1, "Name is required").max(100),
-  email: z.string().trim().toLowerCase().email("Enter a valid email address"),
-  password: newPassword,
-  role: z.enum(["OWNER", "MEMBER", "VIEWER"]),
-  ownerPassword: z.string().min(1, "Enter your own password"),
-});
-export type FamilyMemberCreateInput = z.infer<typeof familyMemberCreateSchema>;
-
-export const familyRoleSchema = z.object({
-  memberId: z.string().min(1),
-  role: z.enum(["MEMBER", "VIEWER"]),
-  ownerPassword: z.string().min(1, "Enter your own password"),
-});
-export type FamilyRoleInput = z.infer<typeof familyRoleSchema>;
-
-export const familyAccessSchema = z.object({
-  memberId: z.string().min(1),
-  isActive: z.boolean(),
-  ownerPassword: z.string().min(1, "Enter your own password"),
-});
-export type FamilyAccessInput = z.infer<typeof familyAccessSchema>;
-
 export const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, "Enter your current password"),
   newPassword,

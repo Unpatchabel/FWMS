@@ -2,7 +2,7 @@
 
 # Family Wealth Management System
 
-> **A private, self-hosted family financial analytics dashboard.**
+> **A private, self-hosted financial dashboard for one owner.**
 > Track wealth, accounts, income, expenses, assets, and liabilities from your own machine.
 > No cloud dependency. No external AI. No paid APIs.
 
@@ -24,7 +24,7 @@ Every balance, net worth calculation, liability, and cash flow figure is calcula
 
 ## Wealth Dashboard
 
-A central view of your family's financial position:
+A central view of your financial position:
 
 * Total net worth
 * Cash position
@@ -214,7 +214,7 @@ FWMS includes:
 ✅ bcrypt password hashing
 ✅ HTTP-only signed session cookies
 ✅ Server-side authentication checks
-✅ Role-based permissions
+✅ Single-owner access
 ✅ Zod input validation
 ✅ Prisma parameterized queries
 ✅ Audit logging
@@ -228,7 +228,7 @@ The application is designed to run on a trusted local machine or private network
 
 | Layer          | Technology            |
 | -------------- | --------------------- |
-| Frontend       | Next.js 14 App Router |
+| Frontend       | Next.js 15 App Router |
 | Language       | TypeScript            |
 | Styling        | Tailwind CSS          |
 | Database       | SQLite                |
@@ -309,19 +309,15 @@ http://localhost:3000
 Use the owner email and password you set in your local `.env` file. Do not
 commit `.env` or your SQLite database to Git.
 
-## Family access
+## Owner access
 
-An OWNER can add another OWNER (for a second parent), MEMBER accounts (for children),
-and VIEWER accounts (for a read-only advisor) from Family. Each person gets a
-separate email and password and sees the same household data when signing into
-the same FWMS server. Owners re-enter their password to change access. Everyone
-can change their own password; doing so signs them out on every device. Disabling
-an account revokes its sessions without deleting its financial history.
+Each installation creates one owner login and its own local SQLite database.
+The owner can change their password under Settings; this signs out all existing
+sessions. Member and viewer logins from older installations are denied, but
+their historical financial records remain in the database.
 
-To use FWMS from another device, run it on a server both devices can reach
-over a trusted HTTPS connection; a browser visiting its own `localhost` cannot
-reach the copy running on your laptop. Keep the SQLite database on that one
-server rather than copying it between devices.
+FWMS is intended for use on the computer that runs it. Each person who clones
+this repository and runs setup gets their own empty household and database.
 
 ---
 
@@ -400,7 +396,7 @@ tests/
 * Loan payment ledger integration
 * Account-to-account transfers
 * Monthly financial reports and dashboard analytics
-* Family roles, member access and password changes
+* Owner password changes and session revocation
 * Audit logging
 * Backup/export system
 * Automated testing

@@ -18,8 +18,8 @@ const sans = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "FWMS — Family Wealth",
-  description: "Private family wealth management dashboard.",
+  title: "FWMS — My Finances",
+  description: "Private financial dashboard for one owner.",
 };
 
 export default function RootLayout({

@@ -14,7 +14,7 @@ export interface CategoryOption {
 
 /**
  * Category dropdown for the transaction form. Only OWNER sees the "+ New
- * category" control — MEMBER and VIEWER pick from the existing list. This is
+ * category" control is available to the owner. This is
  * a UI convenience only; the server independently rejects a non-OWNER's
  * category-create request, so this gate is not the real security boundary.
  */

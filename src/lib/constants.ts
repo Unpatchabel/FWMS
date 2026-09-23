@@ -8,7 +8,7 @@
  * value can ever reach the ledger.
  */
 
-export const USER_ROLES = ["OWNER", "MEMBER", "VIEWER"] as const;
+export const USER_ROLES = ["OWNER"] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 
 export const ACCOUNT_TYPES = [

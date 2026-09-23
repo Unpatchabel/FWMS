@@ -24,12 +24,12 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   // Re-read from DB so deactivated users lose access immediately, even if
   // they still hold a valid cookie.
   const user = await prisma.user.findFirst({
-    where: { id: session.userId, isActive: true },
+    where: { id: session.userId, isActive: true, role: "OWNER" },
     select: { id: true, name: true, email: true, role: true, householdId: true, sessionVersion: true },
   });
-  if (!user || session.sessionVersion !== user.sessionVersion) return null;
+  if (!user || user.role !== "OWNER" || session.sessionVersion !== user.sessionVersion) return null;
 
-  // `role` is stored as String in SQLite; narrow it to the UserRole union.
+  // Legacy MEMBER/VIEWER accounts are denied without deleting their history.
   return {
     id: user.id,
     name: user.name,
@@ -46,16 +46,9 @@ export async function requireUser(): Promise<CurrentUser> {
   return user;
 }
 
-/**
- * Permission checks for API routes.
- *
- * VIEWER can read everything but never write. OWNER additionally controls
- * shared configuration such as categories. These return a boolean rather than
- * throwing, so route handlers can decide the HTTP response themselves —
- * keeping this file free of any Next.js response concerns.
- */
+/** Permission helpers for the owner account. */
 export function canWrite(user: CurrentUser): boolean {
-  return user.role === "OWNER" || user.role === "MEMBER";
+  return user.role === "OWNER";
 }
 
 export function isOwner(user: CurrentUser): boolean {

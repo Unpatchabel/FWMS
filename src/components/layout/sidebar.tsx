@@ -10,7 +10,7 @@ import {
   Building2,
   Landmark,
   PieChart,
-  Users,
+  Settings,
   Target,
   type LucideIcon,
 } from "lucide-react";
@@ -31,7 +31,7 @@ const NAV: NavItem[] = [
   { label: "Assets", href: "/assets", icon: Building2, ready: true },
   { label: "Loans", href: "/loans", icon: Landmark, ready: true },
   { label: "Reports", href: "/reports", icon: PieChart, ready: true },
-  { label: "Family", href: "/family", icon: Users, ready: true },
+  { label: "Settings", href: "/settings", icon: Settings, ready: true },
   { label: "Goals", href: "/goals", icon: Target, ready: false },
 ];
 
@@ -42,7 +42,7 @@ export function Sidebar() {
     <aside className="hidden md:flex w-60 shrink-0 flex-col bg-ink-brand text-beige">
       <div className="px-6 py-6">
         <p className="font-display text-xl tracking-wide">FWMS</p>
-        <p className="text-beige/50 text-xs mt-0.5">Family Wealth</p>
+        <p className="text-beige/50 text-xs mt-0.5">My Finances</p>
       </div>
 
       <nav className="flex-1 px-3 space-y-0.5">

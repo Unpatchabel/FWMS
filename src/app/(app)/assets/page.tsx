@@ -18,7 +18,7 @@ export default async function AssetsPage() {
         <div>
           <h1 className="font-display text-2xl text-ink">Assets</h1>
           <p className="text-sm text-ink-soft mt-1">
-            Real estate, land plots, vehicles, and everything else your family owns.
+            Real estate, land plots, vehicles, and everything else you own.
           </p>
         </div>
         {canWrite(user) && <QuickAddAsset />}

@@ -31,7 +31,7 @@ export async function loginAction(input: {
 
   const ok =
     user && user.isActive && (await verifyPassword(password, user.passwordHash));
-  if (!ok || !user) {
+  if (!ok || !user || user.role !== "OWNER") {
     return { ok: false, error: "Incorrect email or password." };
   }
 
