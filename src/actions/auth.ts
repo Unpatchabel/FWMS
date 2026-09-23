@@ -40,6 +40,7 @@ export async function loginAction(input: {
     householdId: user.householdId,
     role: user.role as UserRole,
     name: user.name,
+    sessionVersion: user.sessionVersion,
   });
 
   cookies().set(SESSION_COOKIE, token, sessionCookieOptions());

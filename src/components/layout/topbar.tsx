@@ -9,7 +9,7 @@ import { logoutAction } from "@/actions/auth";
  * (see src/app/api/backup/route.ts) — a browser download needs response
  * headers a Server Action can't provide.
  */
-export function Topbar({ userName }: { userName: string }) {
+export function Topbar({ userName, canExport }: { userName: string; canExport: boolean }) {
   const firstName = userName.split(" ")[0];
 
   return (
@@ -20,7 +20,7 @@ export function Topbar({ userName }: { userName: string }) {
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
-        <a
+        {canExport && <a
           href="/api/backup"
           aria-label="Export data"
           title="Export data"
@@ -28,7 +28,7 @@ export function Topbar({ userName }: { userName: string }) {
         >
           <Download className="h-4 w-4" />
           <span className="hidden sm:inline">Export data</span>
-        </a>
+        </a>}
         <form action={logoutAction}>
           <button
             type="submit"

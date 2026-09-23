@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, isOwner } from "@/lib/auth";
 import { exportHouseholdData } from "@/services/backup.service";
 
 /**
@@ -20,6 +20,9 @@ export async function GET() {
   const user = await getCurrentUser();
   if (!user) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+  if (!isOwner(user)) {
+    return NextResponse.json({ error: "Only owners can export the household archive." }, { status: 403 });
   }
 
   const data = await exportHouseholdData(user.householdId);

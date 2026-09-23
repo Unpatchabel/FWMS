@@ -13,10 +13,9 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isAuthPage = pathname === "/login";
 
-  // Signed-in users shouldn't see the login page.
-  if (session && isAuthPage) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
+  // The edge guard cannot check DB sessionVersion; let signed cookies reach
+  // /login so revoked sessions can sign in again instead of looping through
+  // /dashboard -> requireUser() -> /login.
 
   // Unauthenticated users can only reach the login page.
   if (!session && !isAuthPage) {

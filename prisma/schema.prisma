@@ -9,7 +9,7 @@
 //     always SUM(amount) of its transactions — never a stored, editable field.
 //  3. History is preserved, not overwritten: AssetValuation and LoanPayment
 //     keep the full trail so current values are derived and auditable.
-//  4. Everything hangs off a Household so up to 3 family members share data.
+//  4. Everything hangs off a Household so family members share data.
 //  5. AuditLog records who did what — cheap now, painful to retrofit later.
 //
 // NOTE ON "ENUMS": SQLite has no native ENUM type, and Prisma therefore does
@@ -59,6 +59,7 @@ model User {
   passwordHash String // bcrypt hash — never the raw password
   role         String   @default("MEMBER") // UserRole: OWNER | MEMBER | VIEWER
   isActive     Boolean  @default(true)
+  sessionVersion Int    @default(0) // bump to invalidate all existing JWTs after credential/access changes
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

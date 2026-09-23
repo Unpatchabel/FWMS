@@ -312,6 +312,20 @@ Development accounts:
 
 ⚠️ Change these credentials before real usage.
 
+## Family access
+
+An OWNER can add another OWNER (for a second parent), MEMBER accounts (for children),
+and VIEWER accounts (for a read-only advisor) from Family. Each person gets a
+separate email and password and sees the same household data when signing into
+the same FWMS server. Owners re-enter their password to change access. Everyone
+can change their own password; doing so signs them out on every device. Disabling
+an account revokes its sessions without deleting its financial history.
+
+To use FWMS from another device, run it on a server both devices can reach
+over a trusted HTTPS connection; a browser visiting its own `localhost` cannot
+reach the copy running on your laptop. Keep the SQLite database on that one
+server rather than copying it between devices.
+
 ---
 
 #  Testing
@@ -389,6 +403,7 @@ tests/
 * Loan payment ledger integration
 * Account-to-account transfers
 * Monthly financial reports and dashboard analytics
+* Family roles, member access and password changes
 * Audit logging
 * Backup/export system
 * Automated testing

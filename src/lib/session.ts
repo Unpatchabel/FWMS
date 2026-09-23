@@ -20,6 +20,7 @@ export interface SessionPayload {
   householdId: string;
   role: UserRole;
   name: string;
+  sessionVersion: number;
   [key: string]: unknown; // satisfies jose's JWTPayload index signature
 }
 

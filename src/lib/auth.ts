@@ -25,12 +25,18 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   // they still hold a valid cookie.
   const user = await prisma.user.findFirst({
     where: { id: session.userId, isActive: true },
-    select: { id: true, name: true, email: true, role: true, householdId: true },
+    select: { id: true, name: true, email: true, role: true, householdId: true, sessionVersion: true },
   });
-  if (!user) return null;
+  if (!user || session.sessionVersion !== user.sessionVersion) return null;
 
   // `role` is stored as String in SQLite; narrow it to the UserRole union.
-  return { ...user, role: user.role as UserRole };
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role as UserRole,
+    householdId: user.householdId,
+  };
 }
 
 /** Guard for pages: redirects to /login if not authenticated. */

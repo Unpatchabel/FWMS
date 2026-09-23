@@ -1,6 +1,9 @@
 import { LoginForm } from "./login-form";
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/auth";
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  if (await getCurrentUser()) redirect("/dashboard");
   return (
     <main className="min-h-screen grid lg:grid-cols-2">
       {/* Brand panel — legacy/trust side of the identity. */}

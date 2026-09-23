@@ -1,13 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { loginAction } from "@/actions/auth";
 
 export function LoginForm() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -23,9 +21,8 @@ export function LoginForm() {
         setError(result.error);
         return;
       }
-      // Full navigation so middleware re-reads the fresh session cookie.
-      router.push("/dashboard");
-      router.refresh();
+      // A real navigation sends the fresh cookie on the very next request.
+      window.location.assign("/dashboard");
     } catch {
       setError("Something went wrong. Try again.");
     } finally {
