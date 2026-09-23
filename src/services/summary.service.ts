@@ -122,11 +122,18 @@ export async function getFinancialSummary(
 /** Most recent ACTIVE transactions for the "Recent activity" panel. */
 export async function getRecentTransactions(householdId: string, take = 8) {
   return prisma.transaction.findMany({
-    where: { householdId, status: "ACTIVE" },
+    // Show a transfer once, using its debit row; the paired credit still
+    // contributes to the destination account's derived balance.
+    where: {
+      householdId,
+      status: "ACTIVE",
+      OR: [{ type: { not: "TRANSFER" } }, { type: "TRANSFER", amount: { lt: 0 } }],
+    },
     orderBy: [{ date: "desc" }, { createdAt: "desc" }],
     take,
     include: {
       account: { select: { name: true } },
+      transferAccount: { select: { name: true } },
       category: { select: { name: true, type: true, color: true } },
     },
   });

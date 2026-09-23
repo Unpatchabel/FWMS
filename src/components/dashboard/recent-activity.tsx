@@ -10,6 +10,7 @@ type Row = {
   description: string | null;
   account: { name: string };
   category: { name: string } | null;
+  transferAccount: { name: string } | null;
 };
 
 /** Recent ledger activity. Amounts show their sign; income green, expense red. */
@@ -27,6 +28,7 @@ export function RecentActivity({ transactions }: { transactions: Row[] }) {
         ) : (
           <ul className="divide-y divide-silver-line">
             {transactions.map((t) => {
+              const transfer = t.type === "TRANSFER";
               const positive = t.amount >= 0;
               return (
                 <li
@@ -35,18 +37,21 @@ export function RecentActivity({ transactions }: { transactions: Row[] }) {
                 >
                   <div className="min-w-0">
                     <p className="text-sm text-ink truncate">
-                      {t.description || t.category?.name || t.type}
+                      {transfer
+                        ? `Transfer to ${t.transferAccount?.name ?? "account"}`
+                        : t.description || t.category?.name || t.type}
                     </p>
                     <p className="text-xs text-silver-muted">
                       {t.account.name} &middot; {format(t.date, "d MMM yyyy")}
+                      {transfer && t.description ? ` · ${t.description}` : ""}
                     </p>
                   </div>
                   <p
                     className={`tabular text-sm font-medium shrink-0 ${
-                      positive ? "text-emerald" : "text-danger"
+                      transfer ? "text-sky" : positive ? "text-emerald" : "text-danger"
                     }`}
                   >
-                    {formatAED(t.amount, { signed: true })}
+                    {transfer ? formatAED(Math.abs(t.amount)) : formatAED(t.amount, { signed: true })}
                   </p>
                 </li>
               );

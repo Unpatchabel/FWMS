@@ -3,7 +3,8 @@ import { aedToFils } from "@/lib/money";
 import { logAudit } from "@/lib/audit";
 import { monthRange, previousMonthRange, parseFormDate } from "@/lib/dates";
 import { signedTransactionAmount } from "@/lib/ledger-math";
-import type { TransactionCreateInput } from "@/lib/validators";
+import { randomUUID } from "node:crypto";
+import type { TransactionCreateInput, TransferCreateInput } from "@/lib/validators";
 import type { Prisma } from "@prisma/client";
 
 export class TransactionValidationError extends Error {}
@@ -169,6 +170,83 @@ export async function createTransaction(
   });
 }
 
+/** Move money between two active household accounts as one atomic ledger pair. */
+export async function createTransfer(
+  householdId: string,
+  userId: string,
+  input: TransferCreateInput
+) {
+  if (input.fromAccountId === input.toAccountId) {
+    throw new TransactionValidationError("Choose two different accounts.");
+  }
+  const amountFils = aedToFils(input.amountAed);
+  if (amountFils <= 0) {
+    throw new TransactionValidationError("Transfer amount must be greater than zero.");
+  }
+  const date = parseFormDate(input.date);
+  const transferGroupId = randomUUID();
+
+  return prisma.$transaction(async (tx) => {
+    const accounts = await tx.account.findMany({
+      where: {
+        householdId,
+        isActive: true,
+        id: { in: [input.fromAccountId, input.toAccountId] },
+      },
+      select: { id: true, name: true },
+    });
+    if (accounts.length !== 2) {
+      throw new TransactionValidationError("Choose two active accounts in this household.");
+    }
+
+    const common = {
+      householdId,
+      type: "TRANSFER",
+      status: "ACTIVE",
+      date,
+      description: input.description || null,
+      transferGroupId,
+      createdById: userId,
+    };
+    const debit = await insertTransactionRow(tx, {
+      ...common,
+      accountId: input.fromAccountId,
+      transferAccountId: input.toAccountId,
+      amount: -amountFils,
+    });
+    const credit = await insertTransactionRow(tx, {
+      ...common,
+      accountId: input.toAccountId,
+      transferAccountId: input.fromAccountId,
+      amount: amountFils,
+    });
+
+    await logAudit({
+      householdId,
+      userId,
+      action: "CREATE",
+      entity: "Transfer",
+      entityId: transferGroupId,
+      summary: `Transferred ${(amountFils / 100).toFixed(2)} AED from ${accounts.find((a) => a.id === input.fromAccountId)!.name} to ${accounts.find((a) => a.id === input.toAccountId)!.name}`,
+    }, tx);
+
+    return { transferGroupId, debit, credit };
+  });
+}
+
+/** One debit row per transfer, with both account names for account history. */
+export async function listTransfers(householdId: string, take = 10) {
+  return prisma.transaction.findMany({
+    where: { householdId, type: "TRANSFER", status: "ACTIVE", amount: { lt: 0 } },
+    orderBy: [{ date: "desc" }, { createdAt: "desc" }],
+    take,
+    include: {
+      account: { select: { name: true } },
+      transferAccount: { select: { name: true } },
+    },
+  });
+}
+
 /**
  * System-generated ledger entry (e.g. an account's opening balance). Accepts
  * the caller's own `db` client so it can participate in an outer interactive
@@ -302,6 +380,9 @@ export async function voidTransaction(
   }
   if (existing.status === "VOID") {
     throw new TransactionValidationError("This entry has already been removed.");
+  }
+  if (existing.type === "TRANSFER" || existing.type === "ADJUSTMENT") {
+    throw new TransactionValidationError("This system entry can't be removed individually.");
   }
   if (existing.loanPayment) {
     throw new TransactionValidationError(

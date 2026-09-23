@@ -88,9 +88,8 @@ export const categoryCreateSchema = z.object({
 export type CategoryCreateInput = z.infer<typeof categoryCreateSchema>;
 
 // ---------------------------------------------------------------------------
-// Transactions — MVP UI only ever creates INCOME or EXPENSE. ADJUSTMENT rows
-// are written by the account-opening-balance flow; TRANSFER is out of scope
-// for Day 2.
+// Transactions — ordinary entries are INCOME or EXPENSE. Opening balances
+// and transfers use their own validated service flows.
 // ---------------------------------------------------------------------------
 
 export const transactionCreateSchema = z.object({
@@ -102,6 +101,18 @@ export const transactionCreateSchema = z.object({
   description: z.string().trim().max(200).optional().or(z.literal("")),
 });
 export type TransactionCreateInput = z.infer<typeof transactionCreateSchema>;
+
+export const transferCreateSchema = z.object({
+  fromAccountId: z.string().min(1, "Choose a source account"),
+  toAccountId: z.string().min(1, "Choose a destination account"),
+  amountAed: positiveAmountAed,
+  date: isoDateString,
+  description: z.string().trim().max(200).optional().or(z.literal("")),
+}).refine((input) => input.fromAccountId !== input.toAccountId, {
+  message: "Choose two different accounts",
+  path: ["toAccountId"],
+});
+export type TransferCreateInput = z.infer<typeof transferCreateSchema>;
 
 // ---------------------------------------------------------------------------
 // Assets — covers every AssetType, including REAL_ESTATE and LAND_PLOT.

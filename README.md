@@ -54,6 +54,11 @@ Account balances are:
 
 Opening balances are recorded as ledger adjustments, maintaining a complete financial history.
 
+Transfers between two household accounts create a linked debit and credit in
+one database transaction. They change each account's balance without changing
+household cash, income, or expenses. Recent transfers appear on the Accounts page.
+Linked transfer entries cannot be voided separately.
+
 ---
 
 ##  Income & Expense Tracking
@@ -317,11 +322,7 @@ Current coverage includes:
 * Net worth calculations
 * Database integration flows
 
-Current status:
-
-```
-69 tests passing ✅
-```
+Run `npm test` after changes to verify the suite against a disposable SQLite database.
 
 ---
 
@@ -373,6 +374,7 @@ tests/
 * Asset management
 * Loan tracking
 * Loan payment ledger integration
+* Account-to-account transfers
 * Audit logging
 * Backup/export system
 * Automated testing
@@ -440,4 +442,3 @@ FWMS is built with a simple idea:
 > Financial software should preserve history, explain every number, and never hide where money came from.
 
 Built as a long-term personal wealth management platform.
-
