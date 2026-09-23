@@ -17,20 +17,21 @@ const VALID_PERIODS: PeriodFilter[] = ["this-month", "last-month", "all"];
 export default async function IncomePage({
   searchParams,
 }: {
-  searchParams: { period?: string; categoryId?: string; q?: string };
+  searchParams: Promise<{ period?: string; categoryId?: string; q?: string }>;
 }) {
   const user = await requireUser();
+  const filters = await searchParams;
   const period: PeriodFilter = VALID_PERIODS.includes(
-    searchParams.period as PeriodFilter
+    filters.period as PeriodFilter
   )
-    ? (searchParams.period as PeriodFilter)
+    ? (filters.period as PeriodFilter)
     : "this-month";
 
   const [transactions, categories, accounts] = await Promise.all([
     listTransactionsByType(user.householdId, "INCOME", {
       period,
-      categoryId: searchParams.categoryId,
-      search: searchParams.q,
+      categoryId: filters.categoryId,
+      search: filters.q,
     }),
     listCategories(user.householdId, "INCOME"),
     listAccounts(user.householdId),
@@ -73,12 +74,12 @@ export default async function IncomePage({
             <CardTitle className="mb-0">History</CardTitle>
             <div className="flex flex-wrap items-center gap-3">
               <Suspense fallback={null}>
-                <TransactionSearch initialValue={searchParams.q} />
+                <TransactionSearch initialValue={filters.q} />
               </Suspense>
               <Suspense fallback={null}>
                 <PeriodFilterBar
                   period={period}
-                  categoryId={searchParams.categoryId}
+                  categoryId={filters.categoryId}
                   categories={categories}
                 />
               </Suspense>

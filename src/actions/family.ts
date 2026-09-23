@@ -63,7 +63,7 @@ export async function changeOwnPasswordAction(input: unknown): Promise<ActionRes
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input." };
   try {
     await changeOwnPassword(user.householdId, user.id, parsed.data);
-    cookies().set(SESSION_COOKIE, "", sessionCookieOptions(0));
+    (await cookies()).set(SESSION_COOKIE, "", sessionCookieOptions(0));
     revalidatePath("/family");
     return { ok: true };
   } catch (error) { return expectedError(error); }

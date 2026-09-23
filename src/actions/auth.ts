@@ -43,7 +43,7 @@ export async function loginAction(input: {
     sessionVersion: user.sessionVersion,
   });
 
-  cookies().set(SESSION_COOKIE, token, sessionCookieOptions());
+  (await cookies()).set(SESSION_COOKIE, token, sessionCookieOptions());
   return { ok: true };
 }
 
@@ -52,6 +52,6 @@ export async function loginAction(input: {
  * form's `action` prop — no client JavaScript needed for logout at all.
  */
 export async function logoutAction(): Promise<void> {
-  cookies().set(SESSION_COOKIE, "", sessionCookieOptions(0));
+  (await cookies()).set(SESSION_COOKIE, "", sessionCookieOptions(0));
   redirect("/login");
 }

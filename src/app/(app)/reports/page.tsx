@@ -14,10 +14,10 @@ function monthKey(date: Date) {
 export default async function ReportsPage({
   searchParams,
 }: {
-  searchParams: { month?: string };
+  searchParams: Promise<{ month?: string }>;
 }) {
   const user = await requireUser();
-  const selected = searchParams.month;
+  const selected = (await searchParams).month;
   const valid = selected && /^(19|20)\d{2}-(0[1-9]|1[0-2])$/.test(selected);
   const ref = valid
     ? new Date(Number(selected.slice(0, 4)), Number(selected.slice(5)) - 1, 1)
