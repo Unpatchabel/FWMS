@@ -19,8 +19,12 @@ export async function middleware(request: NextRequest) {
 
   // Unauthenticated users can only reach the login page.
   if (!session && !isAuthPage) {
-    const url = new URL("/login", request.url);
-    return NextResponse.redirect(url);
+    // Behind Tailscale Serve, NextRequest.url can be https://localhost:3000.
+    // Use the configured external origin only for proxied HTTPS requests.
+    const publicOrigin = process.env.FWMS_PUBLIC_ORIGIN;
+    const fromHttpsProxy = request.headers.get("x-forwarded-proto") === "https";
+    const origin = publicOrigin && fromHttpsProxy ? publicOrigin : request.url;
+    return NextResponse.redirect(new URL("/login", origin));
   }
 
   return NextResponse.next();
