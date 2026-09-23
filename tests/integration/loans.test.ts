@@ -81,9 +81,9 @@ describe("loans.service — ledger integration (recordLoanPayment)", () => {
     const updated = loans.find((l) => l.id === loan.id)!;
     expect(updated.remainingBalanceFils).toBe(40_000_000 - 90_000);
 
-    // Shows up in monthly cash flow like any other expense.
+    // Only the 600 AED interest counts as spending; 900 AED reduces the loan.
     const flow = await getMonthlyFlow(household.id, new Date("2026-01-20"));
-    expect(flow.expensesFils).toBe(150_000);
+    expect(flow.expensesFils).toBe(60_000);
 
     // Account's derived balance also reflects it.
     const accounts = await listAccounts(household.id);

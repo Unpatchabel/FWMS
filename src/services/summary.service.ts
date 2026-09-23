@@ -53,13 +53,14 @@ export async function getTotalLiabilitiesFils(householdId: string): Promise<numb
 }
 
 /** Income/expense totals for a given month (defaults to the current month). VOIDed rows never count. */
+/** Monthly income and spending. Loan principal reduces debt, not spending. */
 export async function getMonthlyFlow(
   householdId: string,
   ref: Date = new Date()
 ): Promise<{ incomeFils: number; expensesFils: number }> {
   const { start, end } = monthRange(ref);
 
-  const [income, expense] = await Promise.all([
+  const [income, expenses] = await Promise.all([
     prisma.transaction.aggregate({
       where: {
         householdId,
@@ -69,21 +70,27 @@ export async function getMonthlyFlow(
       },
       _sum: { amount: true },
     }),
-    prisma.transaction.aggregate({
+    prisma.transaction.findMany({
       where: {
         householdId,
         type: "EXPENSE",
         status: "ACTIVE",
         date: { gte: start, lt: end },
       },
-      _sum: { amount: true },
+      select: {
+        amount: true,
+        loanPayment: { select: { principal: true } },
+      },
     }),
   ]);
 
-  // Expenses are stored negative; report them as a positive magnitude.
   return {
     incomeFils: income._sum.amount ?? 0,
-    expensesFils: Math.abs(expense._sum.amount ?? 0),
+    expensesFils: expenses.reduce(
+      (total, transaction) =>
+        total + Math.abs(transaction.amount) - (transaction.loanPayment?.principal ?? 0),
+      0
+    ),
   };
 }
 
