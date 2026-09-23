@@ -13,27 +13,31 @@ export function Topbar({ userName }: { userName: string }) {
   const firstName = userName.split(" ")[0];
 
   return (
-    <header className="flex items-center justify-between border-b border-beige-border bg-canvas/80 backdrop-blur px-6 py-4">
-      <div>
+    <header className="flex items-center justify-between gap-3 border-b border-beige-border bg-canvas/80 backdrop-blur px-4 py-4 sm:px-6">
+      <div className="min-w-0">
         <p className="text-sm text-ink-soft">Welcome back,</p>
         <p className="font-display text-lg text-ink leading-tight">{firstName}</p>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2">
         <a
           href="/api/backup"
-          className="inline-flex items-center gap-2 rounded-pill border border-beige-border bg-surface px-3 py-1.5 text-sm text-ink-soft hover:bg-surface-sunken transition-colors"
+          aria-label="Export data"
+          title="Export data"
+          className="inline-flex items-center gap-2 rounded-pill border border-beige-border bg-surface px-2.5 py-2 text-sm text-ink-soft hover:bg-surface-sunken transition-colors sm:px-3 sm:py-1.5"
         >
           <Download className="h-4 w-4" />
-          Export data
+          <span className="hidden sm:inline">Export data</span>
         </a>
         <form action={logoutAction}>
           <button
             type="submit"
-            className="inline-flex items-center gap-2 rounded-pill border border-beige-border bg-surface px-3 py-1.5 text-sm text-ink-soft hover:bg-surface-sunken transition-colors"
+            aria-label="Sign out"
+            title="Sign out"
+            className="inline-flex items-center gap-2 rounded-pill border border-beige-border bg-surface px-2.5 py-2 text-sm text-ink-soft hover:bg-surface-sunken transition-colors sm:px-3 sm:py-1.5"
           >
             <LogOut className="h-4 w-4" />
-            Sign out
+            <span className="hidden sm:inline">Sign out</span>
           </button>
         </form>
       </div>

@@ -39,7 +39,7 @@ export default async function IncomePage({
   const totalFils = transactions.reduce((sum, t) => sum + t.amount, 0);
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
           <h1 className="font-display text-2xl text-ink">Income</h1>
@@ -67,7 +67,7 @@ export default async function IncomePage({
         </p>
       </Card>
 
-      <Card>
+      <Card className="min-w-0">
         <CardHeader>
           <div className="flex items-center justify-between flex-wrap gap-3">
             <CardTitle className="mb-0">History</CardTitle>

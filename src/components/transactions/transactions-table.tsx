@@ -14,6 +14,7 @@ type Row = {
   description: string | null;
   account: { name: string };
   category: { name: string; color: string } | null;
+  loanPayment?: { principal: number; interest: number } | null;
 };
 
 /** Ledger rows for the Income/Expenses pages, with an optional delete action. */
@@ -60,6 +61,11 @@ export function TransactionsTable({
               {t.category?.name ? `${t.category.name} \u00b7 ` : ""}
               {t.account.name} &middot; {format(new Date(t.date), "d MMM yyyy")}
             </p>
+            {t.loanPayment && (
+              <p className="mt-1 text-xs text-ink-soft">
+                {formatAED(t.loanPayment.principal)} to principal · {formatAED(t.loanPayment.interest)} interest
+              </p>
+            )}
           </div>
           <div className="flex items-center gap-3 shrink-0">
             <p

@@ -13,12 +13,15 @@ import {
   getRecentTransactions,
 } from "@/services/summary.service";
 import { getInsights } from "@/services/insights.service";
+import { getDashboardAnalytics } from "@/services/dashboard-analytics.service";
 import { listAccounts } from "@/services/accounts.service";
 import { listCategories } from "@/services/categories.service";
 import { NetWorthHero } from "@/components/dashboard/net-worth-hero";
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { RecentActivity } from "@/components/dashboard/recent-activity";
 import { InsightsPanel } from "@/components/dashboard/insights-panel";
+import { CashFlowTrend } from "@/components/dashboard/cash-flow-trend";
+import { SpendingBreakdown } from "@/components/dashboard/spending-breakdown";
 import { QuickAddTransaction } from "@/components/transactions/quick-add-transaction";
 
 // Financial data must always be current — never served from a stale cache.
@@ -28,9 +31,10 @@ export default async function DashboardPage() {
   const user = await requireUser();
   const { householdId } = user;
 
-  const [summary, recent, accounts, incomeCategories, expenseCategories] =
+  const [summary, analytics, recent, accounts, incomeCategories, expenseCategories] =
     await Promise.all([
       getFinancialSummary(householdId),
+      getDashboardAnalytics(householdId),
       getRecentTransactions(householdId),
       listAccounts(householdId),
       listCategories(householdId, "INCOME"),
@@ -109,6 +113,16 @@ export default async function DashboardPage() {
           hint="This month"
           icon={PiggyBank}
           accent="sky"
+        />
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <div className="min-w-0 lg:col-span-2">
+          <CashFlowTrend months={analytics.months} />
+        </div>
+        <SpendingBreakdown
+          categories={analytics.categories}
+          totalFils={analytics.currentSpendingFils}
         />
       </div>
 

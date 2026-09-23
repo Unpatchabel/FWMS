@@ -113,6 +113,7 @@ export async function listTransactionsByType(
     include: {
       account: { select: { id: true, name: true } },
       category: { select: { id: true, name: true, color: true } },
+      loanPayment: { select: { principal: true, interest: true } },
     },
   });
 }

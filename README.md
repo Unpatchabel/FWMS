@@ -35,6 +35,8 @@ A central view of your family's financial position:
 * Savings rate
 * Recent financial activity
 * Local rule-based financial insights
+* Six-month income and spending trends
+* Current-month spending by category
 
 ---
 
@@ -71,6 +73,7 @@ A unified transaction engine powers:
 * Search
 * Filtering
 * Financial summaries
+* Separate cash-paid and spending totals for loan payments
 
 Security features:
 

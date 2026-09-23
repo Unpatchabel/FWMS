@@ -1,4 +1,4 @@
-import { formatAED } from "@/lib/money";
+import { formatAED, formatAEDCompact } from "@/lib/money";
 
 /**
  * The dashboard's signature element: combined family net worth, set in the
@@ -17,13 +17,16 @@ export function NetWorthHero({
   liabilitiesFils: number;
 }) {
   return (
-    <section className="relative overflow-hidden rounded-card border border-beige-border bg-surface shadow-card px-8 py-8">
+    <section className="relative min-w-0 overflow-hidden rounded-card border border-beige-border bg-surface px-5 py-6 shadow-card sm:px-8 sm:py-8">
       <p className="text-sm uppercase tracking-widest text-ink-soft">
         Combined Net Worth
       </p>
 
-      <p className="tabular font-display text-hero text-ink mt-2">
-        {formatAED(netWorthFils)}
+      <p className="tabular mt-2 font-display text-ink">
+        <span className="block text-sm font-sans font-medium text-ink-soft sm:inline sm:font-display sm:text-hero sm:text-ink">AED </span>
+        <span className="block text-[clamp(1.75rem,7vw,3.25rem)] leading-tight tracking-tight sm:inline sm:text-hero">
+          {formatAED(netWorthFils, { withSymbol: false })}
+        </span>
       </p>
 
       {/* Signature accent: a short emerald-to-sky underline. */}
@@ -35,7 +38,7 @@ export function NetWorthHero({
         }}
       />
 
-      <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 gap-6 max-w-xl">
+      <div className="mt-8 grid max-w-xl grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6">
         <Breakdown label="Cash" value={cashFils} accent="text-ink" />
         <Breakdown label="Assets" value={assetsFils} accent="text-emerald" />
         <Breakdown
@@ -67,12 +70,13 @@ function Breakdown({
   accent: string;
 }) {
   return (
-    <div>
+    <div className="min-w-0">
       <p className="text-xs uppercase tracking-wide text-silver-muted">
         {label}
       </p>
-      <p className={`tabular text-lg font-medium mt-1 ${accent}`}>
-        {formatAED(value)}
+      <p className={`tabular mt-1 text-sm font-medium sm:text-lg ${accent}`}>
+        <span className="sm:hidden" aria-label={formatAED(value)}>{formatAEDCompact(value)}</span>
+        <span className="hidden sm:inline">{formatAED(value)}</span>
       </p>
     </div>
   );

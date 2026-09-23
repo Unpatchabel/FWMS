@@ -36,15 +36,20 @@ export default async function ExpensesPage({
     listAccounts(user.householdId),
   ]);
 
-  const totalFils = Math.abs(transactions.reduce((sum, t) => sum + t.amount, 0));
+  const cashPaidFils = transactions.reduce((sum, t) => sum + Math.abs(t.amount), 0);
+  const spendingFils = transactions.reduce(
+    (sum, t) => sum + Math.abs(t.amount) - (t.loanPayment?.principal ?? 0),
+    0
+  );
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
-          <h1 className="font-display text-2xl text-ink">Expenses</h1>
+          <h1 className="font-display text-xl text-ink sm:text-2xl">Expenses &amp; payments</h1>
           <p className="text-sm text-ink-soft mt-1">
-            Every debit from a household account, categorized and dated.
+            Cash leaving your accounts. Loan principal reduces debt; only interest
+            counts toward spending.
           </p>
         </div>
         {canWrite(user) && (
@@ -58,16 +63,18 @@ export default async function ExpensesPage({
         )}
       </div>
 
-      <Card className="p-5">
-        <p className="text-xs uppercase tracking-wide text-silver-muted">
-          Total for selection
-        </p>
-        <p className="tabular text-2xl font-medium text-danger mt-1">
-          {formatAED(totalFils)}
-        </p>
-      </Card>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Card className="p-5">
+          <p className="text-xs uppercase tracking-wide text-silver-muted">Spending for selection</p>
+          <p className="tabular mt-1 text-2xl font-medium text-danger">{formatAED(spendingFils)}</p>
+        </Card>
+        <Card className="p-5">
+          <p className="text-xs uppercase tracking-wide text-silver-muted">Cash paid for selection</p>
+          <p className="tabular mt-1 text-2xl font-medium text-ink">{formatAED(cashPaidFils)}</p>
+        </Card>
+      </div>
 
-      <Card>
+      <Card className="min-w-0">
         <CardHeader>
           <div className="flex items-center justify-between flex-wrap gap-3">
             <CardTitle className="mb-0">History</CardTitle>

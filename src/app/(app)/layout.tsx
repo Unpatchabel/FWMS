@@ -15,15 +15,15 @@ export default async function AppLayout({
   const user = await requireUser();
 
   return (
-  <div className="flex min-h-screen">
-    <Sidebar />
-    <MobileNav />
-    <div className="flex min-w-0 flex-1 flex-col">
-      <Topbar userName={user.name} />
-      <main className="flex-1 p-6 pb-24 md:pb-8 lg:p-8">
-        {children}
-      </main>
+    <div className="flex h-dvh overflow-hidden md:h-auto md:min-h-screen md:overflow-visible">
+      <Sidebar />
+      <MobileNav />
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col pb-20 md:pb-0">
+        <Topbar userName={user.name} />
+        <main className="min-h-0 flex-1 overflow-y-auto p-6 md:overflow-visible md:pb-8 lg:p-8">
+          {children}
+        </main>
+      </div>
     </div>
-  </div>
-);
+  );
 }

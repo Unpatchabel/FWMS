@@ -40,29 +40,31 @@ export function PeriodFilter({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <div className="inline-flex rounded-pill bg-surface-sunken p-1">
-        {PERIODS.map((p) => (
-          <button
-            key={p.value}
-            type="button"
-            onClick={() => setParam("period", p.value)}
-            className={cn(
-              "rounded-pill px-3 py-1.5 text-sm transition-colors",
-              period === p.value
-                ? "bg-surface text-ink shadow-sm font-medium"
-                : "text-ink-soft hover:text-ink"
-            )}
-          >
-            {p.label}
-          </button>
-        ))}
+    <div className="flex w-full min-w-0 flex-wrap items-center gap-3">
+      <div className="max-w-full overflow-x-auto rounded-pill bg-surface-sunken p-1">
+        <div className="flex w-max">
+          {PERIODS.map((p) => (
+            <button
+              key={p.value}
+              type="button"
+              onClick={() => setParam("period", p.value)}
+              className={cn(
+                "rounded-pill px-3 py-1.5 text-sm transition-colors",
+                period === p.value
+                  ? "bg-surface text-ink shadow-sm font-medium"
+                  : "text-ink-soft hover:text-ink"
+              )}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <Select
         value={categoryId ?? ""}
         onChange={(e) => setParam("categoryId", e.target.value)}
-        className="w-auto"
+        className="w-full sm:w-auto"
       >
         <option value="">All categories</option>
         {categories.map((c) => (
