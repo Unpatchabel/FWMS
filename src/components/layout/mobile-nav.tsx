@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, TrendingUp, Receipt, Wallet,
-  Building2, Landmark, Menu, X,
+  Building2, Landmark, PieChart, Menu, X,
 } from "lucide-react";
 
 const mainLinks = [
@@ -18,6 +18,7 @@ const mainLinks = [
 const otherLinks = [
   { label: "Assets", href: "/assets", icon: Building2 },
   { label: "Loans", href: "/loans", icon: Landmark },
+  { label: "Reports", href: "/reports", icon: PieChart },
 ];
 
 export function MobileNav() {

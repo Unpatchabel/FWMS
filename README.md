@@ -40,6 +40,16 @@ A central view of your family's financial position:
 
 ---
 
+## Monthly Reports
+
+Use Reports to review any calendar month, including months without transactions.
+The report groups income and spending by category, shows income after spending,
+and reconciles cash paid with the principal portion of loan payments.
+Only active transactions from the signed-in household count; account transfers
+and opening balance adjustments do not affect income or spending.
+
+---
+
 ## 🏦 Account Management
 
 Supports:
@@ -378,6 +388,7 @@ tests/
 * Loan tracking
 * Loan payment ledger integration
 * Account-to-account transfers
+* Monthly financial reports and dashboard analytics
 * Audit logging
 * Backup/export system
 * Automated testing
@@ -388,8 +399,6 @@ tests/
 
 ### Phase 4
 
-* Financial reports
-* Charts and analytics
 * Document storage
 * Wealth trends
 
