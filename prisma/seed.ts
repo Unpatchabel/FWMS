@@ -16,6 +16,19 @@ import bcrypt from "bcryptjs";
  */
 const prisma = new PrismaClient();
 
+import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
+
+/**
+ * Creates a demo household with sample financial data.
+ *
+ * This script only runs against an empty database. It never deletes
+ * existing household data.
+ *
+ * Amounts are written in whole AED via aed() and stored as integer fils.
+ */
+const prisma = new PrismaClient();
+
 const aed = (n: number) => Math.round(n * 100); // AED -> fils
 
 function daysAgo(n: number): Date {
@@ -23,29 +36,22 @@ function daysAgo(n: number): Date {
   d.setDate(d.getDate() - n);
   return d;
 }
+
 function thisMonth(day: number): Date {
   const d = new Date();
   return new Date(d.getFullYear(), d.getMonth(), day);
 }
+
 function lastMonth(day: number): Date {
   const d = new Date();
   return new Date(d.getFullYear(), d.getMonth() - 1, day);
 }
 
 async function main() {
-  console.log("Clearing existing data\u2026");
-  // Order respects foreign keys (children first).
-  await prisma.auditLog.deleteMany();
-  await prisma.loanPayment.deleteMany();
-  await prisma.loan.deleteMany();
-  await prisma.assetValuation.deleteMany();
-  await prisma.asset.deleteMany();
-  await prisma.transaction.deleteMany();
-  await prisma.category.deleteMany();
-  await prisma.account.deleteMany();
-  await prisma.goal.deleteMany();
-  await prisma.user.deleteMany();
-  await prisma.household.deleteMany();
+  const existingHouseholds = await prisma.household.count();
+  if (existingHouseholds > 0) {
+    throw new Error("Seed refused: this database already contains data.");
+  }
 
   console.log("Creating household\u2026");
   const household = await prisma.household.create({
@@ -84,6 +90,7 @@ async function main() {
     "Shopping",
     "Other",
   ];
+
   await prisma.category.createMany({
     data: [
       ...incomeCats.map((name) => ({
@@ -102,6 +109,7 @@ async function main() {
       })),
     ],
   });
+
   const cats = await prisma.category.findMany({
     where: { householdId: household.id },
   });
@@ -116,6 +124,7 @@ async function main() {
       institution: "Emirates NBD",
     },
   });
+
   const savings = await prisma.account.create({
     data: {
       householdId: household.id,
@@ -124,11 +133,12 @@ async function main() {
       institution: "Emirates NBD",
     },
   });
+
   const cash = await prisma.account.create({
     data: { householdId: household.id, name: "Cash Wallet", type: "CASH" },
   });
 
-  // Opening balances as ADJUSTMENT transactions (ledger-consistent).
+  // Opening balances are ledger adjustments, not stored account balances.
   await prisma.transaction.createMany({
     data: [
       {
@@ -180,7 +190,7 @@ async function main() {
         date: thisMonth(3),
         description: "Apartment rent received",
       },
-      // This month — expenses (stored negative)
+      // This month — expenses
       {
         householdId: household.id,
         accountId: checking.id,
@@ -226,7 +236,7 @@ async function main() {
         date: thisMonth(8),
         description: "Clothing",
       },
-      // Last month — for month-over-month insight
+      // Last month
       {
         householdId: household.id,
         accountId: checking.id,
@@ -259,6 +269,7 @@ async function main() {
       ownership: "Family (100%)",
     },
   });
+
   await prisma.assetValuation.create({
     data: {
       assetId: villa.id,
@@ -278,6 +289,7 @@ async function main() {
       ownership: "Family (100%)",
     },
   });
+
   await prisma.assetValuation.create({
     data: {
       assetId: car.id,
@@ -301,12 +313,7 @@ async function main() {
     },
   });
 
-  // Mirrors what loans.service.recordLoanPayment does for a real payment: a
-  // "Loan Payment" EXPENSE category, a linked ledger Transaction debiting the
-  // account it was paid from, and the LoanPayment row referencing it — so the
-  // seeded mortgage payment shows up in cash/expense totals exactly like a
-  // payment recorded through the UI would, rather than looking inconsistent
-  // with it.
+  // Link the loan payment to the account debit, as the application does.
   const loanPaymentCategory = await prisma.category.create({
     data: {
       householdId: household.id,
@@ -315,6 +322,7 @@ async function main() {
       isSystem: true,
     },
   });
+
   const mortgagePaymentDate = thisMonth(2);
   const mortgageTransaction = await prisma.transaction.create({
     data: {
@@ -327,6 +335,7 @@ async function main() {
       description: "Loan payment \u2014 Home Mortgage",
     },
   });
+
   await prisma.loanPayment.create({
     data: {
       loanId: mortgage.id,
