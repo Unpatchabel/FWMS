@@ -2,24 +2,6 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 /**
- * Seed script.
- *
- * Creates a working household with sample data so the dashboard shows real,
- * DERIVED figures on first launch. Opening balances are written as ADJUSTMENT
- * transactions — consistent with the ledger model, not a stored balance field.
- *
- * Re-running is safe: it clears existing data first.
- *
- * NOTE: amounts here are written in whole AED via aed(); everything is stored
- * as integer fils (AED * 100). Kept inline to avoid path-alias resolution in
- * the standalone tsx runtime.
- */
-const prisma = new PrismaClient();
-
-import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
-
-/**
  * Creates a demo household with sample financial data.
  *
  * This script only runs against an empty database. It never deletes
