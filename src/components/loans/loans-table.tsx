@@ -8,15 +8,19 @@ import type { AccountOption } from "@/components/transactions/transaction-form";
 export function LoansTable({
   loans,
   accounts,
+  canWrite,
 }: {
   loans: LoanWithBalance[];
   accounts: AccountOption[];
+  canWrite: boolean;
 }) {
   if (loans.length === 0) {
     return (
       <Card className="p-10 text-center">
         <p className="text-sm text-ink-soft">
-          No loans yet. Add a mortgage, car loan, or other financing your family is repaying.
+          {canWrite
+            ? "No loans yet. Add a mortgage, car loan, or other financing."
+            : "No loans have been added yet."}
         </p>
       </Card>
     );
@@ -59,9 +63,11 @@ export function LoansTable({
               </p>
             )}
 
-            <div className="mt-auto pt-4">
-              <RecordPaymentButton loanId={l.id} loanName={l.name} accounts={accounts} />
-            </div>
+            {canWrite && (
+              <div className="mt-auto pt-4">
+                <RecordPaymentButton loanId={l.id} loanName={l.name} accounts={accounts} />
+              </div>
+            )}
           </Card>
         );
       })}

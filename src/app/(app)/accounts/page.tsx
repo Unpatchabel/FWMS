@@ -1,4 +1,4 @@
-import { requireUser } from "@/lib/auth";
+import { requireUser, canWrite } from "@/lib/auth";
 import { listAccounts } from "@/services/accounts.service";
 import { AccountsTable } from "@/components/accounts/accounts-table";
 import { QuickAddAccount } from "@/components/accounts/quick-add-account";
@@ -19,10 +19,10 @@ export default async function AccountsPage() {
             entered directly.
           </p>
         </div>
-        <QuickAddAccount />
+        {canWrite(user) && <QuickAddAccount />}
       </div>
 
-      <AccountsTable accounts={accounts} />
+      <AccountsTable accounts={accounts} canWrite={canWrite(user)} />
     </div>
   );
 }

@@ -17,13 +17,14 @@ const TYPE_ICON: Record<AssetType, LucideIcon> = {
   OTHER: Boxes,
 };
 
-export function AssetsTable({ assets }: { assets: AssetWithValue[] }) {
+export function AssetsTable({ assets, canWrite }: { assets: AssetWithValue[]; canWrite: boolean }) {
   if (assets.length === 0) {
     return (
       <Card className="p-10 text-center">
         <p className="text-sm text-ink-soft">
-          No assets yet. Add real estate, a land plot, a vehicle, or anything
-          else of value your family owns.
+          {canWrite
+            ? "No assets yet. Add real estate, land, a vehicle, or another valuable item."
+            : "No assets have been added yet."}
         </p>
       </Card>
     );
@@ -66,9 +67,11 @@ export function AssetsTable({ assets }: { assets: AssetWithValue[] }) {
               <p className="text-xs text-ink-soft mt-2 line-clamp-2">{a.notes}</p>
             )}
 
-            <div className="mt-auto pt-4">
-              <RecordValuationButton assetId={a.id} assetName={a.name} />
-            </div>
+            {canWrite && (
+              <div className="mt-auto pt-4">
+                <RecordValuationButton assetId={a.id} assetName={a.name} />
+              </div>
+            )}
           </Card>
         );
       })}

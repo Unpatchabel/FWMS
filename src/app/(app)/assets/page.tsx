@@ -1,4 +1,4 @@
-import { requireUser } from "@/lib/auth";
+import { requireUser, canWrite } from "@/lib/auth";
 import { formatAED } from "@/lib/money";
 import { listAssets } from "@/services/assets.service";
 import { AssetsTable } from "@/components/assets/assets-table";
@@ -21,7 +21,7 @@ export default async function AssetsPage() {
             Real estate, land plots, vehicles, and everything else your family owns.
           </p>
         </div>
-        <QuickAddAsset />
+        {canWrite(user) && <QuickAddAsset />}
       </div>
 
       <Card className="p-5">
@@ -31,7 +31,7 @@ export default async function AssetsPage() {
         </p>
       </Card>
 
-      <AssetsTable assets={assets} />
+      <AssetsTable assets={assets} canWrite={canWrite(user)} />
     </div>
   );
 }

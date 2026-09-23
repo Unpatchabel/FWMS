@@ -6,7 +6,7 @@ import {
   Receipt,
   PiggyBank,
 } from "lucide-react";
-import { requireUser, isOwner } from "@/lib/auth";
+import { requireUser, canWrite, isOwner } from "@/lib/auth";
 import { formatAED } from "@/lib/money";
 import {
   getFinancialSummary,
@@ -40,23 +40,25 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-end gap-3">
-        <QuickAddTransaction
-          type="EXPENSE"
-          label="Add Expense"
-          accounts={accounts}
-          categories={expenseCategories}
-          isOwner={isOwner(user)}
-          variant="secondary"
-        />
-        <QuickAddTransaction
-          type="INCOME"
-          label="Add Income"
-          accounts={accounts}
-          categories={incomeCategories}
-          isOwner={isOwner(user)}
-        />
-      </div>
+      {canWrite(user) && (
+        <div className="flex items-center justify-end gap-3">
+          <QuickAddTransaction
+            type="EXPENSE"
+            label="Add Expense"
+            accounts={accounts}
+            categories={expenseCategories}
+            isOwner={isOwner(user)}
+            variant="secondary"
+          />
+          <QuickAddTransaction
+            type="INCOME"
+            label="Add Income"
+            accounts={accounts}
+            categories={incomeCategories}
+            isOwner={isOwner(user)}
+          />
+        </div>
+      )}
 
       <NetWorthHero
         netWorthFils={summary.netWorthFils}

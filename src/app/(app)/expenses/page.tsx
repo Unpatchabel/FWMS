@@ -47,13 +47,15 @@ export default async function ExpensesPage({
             Every debit from a household account, categorized and dated.
           </p>
         </div>
-        <QuickAddTransaction
-          type="EXPENSE"
-          label="Add Expense"
-          accounts={accounts}
-          categories={categories}
-          isOwner={isOwner(user)}
-        />
+        {canWrite(user) && (
+          <QuickAddTransaction
+            type="EXPENSE"
+            label="Add Expense"
+            accounts={accounts}
+            categories={categories}
+            isOwner={isOwner(user)}
+          />
+        )}
       </div>
 
       <Card className="p-5">

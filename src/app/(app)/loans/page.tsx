@@ -1,4 +1,4 @@
-import { requireUser } from "@/lib/auth";
+import { requireUser, canWrite } from "@/lib/auth";
 import { formatAED } from "@/lib/money";
 import { listLoans } from "@/services/loans.service";
 import { listAccounts } from "@/services/accounts.service";
@@ -26,7 +26,7 @@ export default async function LoansPage() {
             never entered directly.
           </p>
         </div>
-        <QuickAddLoan />
+        {canWrite(user) && <QuickAddLoan />}
       </div>
 
       <Card className="p-5">
@@ -36,7 +36,7 @@ export default async function LoansPage() {
         </p>
       </Card>
 
-      <LoansTable loans={loans} accounts={accounts} />
+      <LoansTable loans={loans} accounts={accounts} canWrite={canWrite(user)} />
     </div>
   );
 }

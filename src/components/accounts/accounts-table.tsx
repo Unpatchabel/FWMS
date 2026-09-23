@@ -14,12 +14,14 @@ const TYPE_ICON: Record<AccountType, LucideIcon> = {
   OTHER: CreditCard,
 };
 
-export function AccountsTable({ accounts }: { accounts: AccountWithBalance[] }) {
+export function AccountsTable({ accounts, canWrite }: { accounts: AccountWithBalance[]; canWrite: boolean }) {
   if (accounts.length === 0) {
     return (
       <Card className="p-10 text-center">
         <p className="text-sm text-ink-soft">
-          No accounts yet. Add your first bank account, savings account, or cash wallet.
+          {canWrite
+            ? "No accounts yet. Add your first bank account, savings account, or cash wallet."
+            : "No accounts have been added yet."}
         </p>
       </Card>
     );

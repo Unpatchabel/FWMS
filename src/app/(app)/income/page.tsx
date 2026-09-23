@@ -47,13 +47,15 @@ export default async function IncomePage({
             Every credit to a household account, categorized and dated.
           </p>
         </div>
-        <QuickAddTransaction
-          type="INCOME"
-          label="Add Income"
-          accounts={accounts}
-          categories={categories}
-          isOwner={isOwner(user)}
-        />
+        {canWrite(user) && (
+          <QuickAddTransaction
+            type="INCOME"
+            label="Add Income"
+            accounts={accounts}
+            categories={categories}
+            isOwner={isOwner(user)}
+          />
+        )}
       </div>
 
       <Card className="p-5">
