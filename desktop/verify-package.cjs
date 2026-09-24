@@ -5,11 +5,11 @@ const { spawnSync } = require('node:child_process');
 const output = path.join(__dirname, '..', 'dist-desktop');
 const entries = fs.readdirSync(output, { withFileTypes: true }).filter(entry => entry.isDirectory());
 const unpacked = entries.find(entry => entry.name.startsWith('win-unpacked'))
-  || entries.find(entry => entry.name.startsWith('mac-'))
+  || entries.find(entry => (entry.name === 'mac' || entry.name.startsWith('mac-')))
   || entries.find(entry => entry.name === 'linux-unpacked');
 if (!unpacked) throw new Error('No unpacked desktop application was produced.');
 const root = path.join(output, unpacked.name);
-const isMac = unpacked.name.startsWith('mac-');
+const isMac = (unpacked.name === 'mac' || unpacked.name.startsWith('mac-'));
 const resources = isMac ? path.join(root, 'FWMS.app', 'Contents', 'Resources') : path.join(root, 'resources');
 const executable = isMac ? path.join(root, 'FWMS.app', 'Contents', 'MacOS', 'FWMS')
   : path.join(root, process.platform === 'win32' ? 'FWMS.exe' : 'fwms');
