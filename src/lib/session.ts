@@ -10,7 +10,8 @@ import type { UserRole } from "@/lib/constants";
  * in session-cookie.ts, which is server-only.
  *
  * A session is a JWT signed with AUTH_SECRET (HS256), stored in an HTTP-only,
- * SameSite=Lax, Secure-in-production cookie.
+ * SameSite=Lax, Secure in HTTPS production. Desktop's loopback HTTP uses a
+ * non-Secure cookie, still HttpOnly and confined to this browser profile.
  */
 
 export const SESSION_COOKIE = "fwms_session";
@@ -43,7 +44,7 @@ export function sessionCookieOptions(maxAge: number = sessionMaxAgeSeconds()) {
   return {
     httpOnly: true,
     sameSite: "lax" as const,
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV === "production" && process.env.FWMS_DESKTOP !== "1",
     path: "/",
     maxAge,
   };

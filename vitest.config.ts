@@ -22,9 +22,8 @@ export default defineConfig({
     // so tests run in a single thread rather than racing each other — at this
     // suite's size that costs a couple of seconds, not something worth
     // fighting SQLite over.
-    poolOptions: {
-      threads: { singleThread: true },
-    },
+    fileParallelism: false,
+    maxWorkers: 1,
     testTimeout: 15000,
   },
 });

@@ -2,6 +2,24 @@
 
 # Family Wealth Management System
 
+## Install the desktop app
+
+Download the **FWMS** installer for your computer from
+[GitHub Releases](https://github.com/Unpatchabel/FWMS/releases) when the first
+desktop release is published. Open the installer, open FWMS, and press **Start
+FWMS**. The app prepares its private database on first launch, then asks you
+to create your owner account and choose a currency. You do not need Node.js,
+Git, a terminal, or a hosted account to use a desktop release.
+
+Your records are stored in your computer's application data folder; saved
+reports are in `Documents/FWMS-Recent-Docs`. Keep backups of both. Currency
+conversion needs internet; the ledger, calculator, and reports work offline.
+
+The desktop installer builds are currently **test builds**. macOS and Windows
+may warn about unsigned downloads until signing and macOS notarization are
+configured. Maintainer packaging instructions are in
+[docs/desktop-release.md](docs/desktop-release.md).
+
 > **A private, self-hosted financial dashboard for one owner.**
 > Track wealth, accounts, income, expenses, assets, and liabilities from your own machine.
 > Your ledger stays on your computer. Currency conversion uses an external reference rate service.
