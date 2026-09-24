@@ -54,7 +54,6 @@ model Household {
 model User {
   id           String   @id @default(cuid())
   householdId  String
-  email        String   @unique
   name         String
   passwordHash String // bcrypt hash — never the raw password
   role         String   @default("MEMBER") // UserRole: OWNER | MEMBER | VIEWER

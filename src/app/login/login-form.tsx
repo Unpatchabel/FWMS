@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { loginAction } from "@/actions/auth";
 
 export function LoginForm() {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -16,7 +16,7 @@ export function LoginForm() {
     setError(null);
     setLoading(true);
     try {
-      const result = await loginAction({ email, password });
+      const result = await loginAction({ username, password });
       if (!result.ok) {
         setError(result.error);
         return;
@@ -33,15 +33,16 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label htmlFor="email" className="block text-sm text-ink-soft mb-1">
-          Email
+        <label htmlFor="username" className="block text-sm text-ink-soft mb-1">
+          Username
         </label>
         <Input
-          id="email"
-          type="email"
-          autoComplete="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          id="username"
+          type="text"
+          autoComplete="username"
+          maxLength={40}
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
           required
         />
       </div>

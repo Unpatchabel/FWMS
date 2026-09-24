@@ -23,7 +23,7 @@ export default async function AppLayout({
       <Sidebar />
       <MobileNav />
       <div className="flex min-h-0 min-w-0 flex-1 flex-col pb-20 md:pb-0">
-        <Topbar canExport={isOwner(user)} />
+        <Topbar canExport={isOwner(user)} username={user.name} />
         <main className="min-h-0 flex-1 overflow-y-auto p-6 md:overflow-visible md:pb-8 lg:p-8">
           {children}
         </main>

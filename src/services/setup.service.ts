@@ -19,8 +19,8 @@ export async function createOwnerInstallation(input: SetupInput) {
       id: "fwms-primary", name: "My finances", currency: input.currency,
     } });
     const owner = await tx.user.create({ data: {
-      householdId: household.id, email: input.email.toLowerCase(),
-      name: "Owner", passwordHash, role: "OWNER",
+      householdId: household.id,
+      name: input.username, passwordHash, role: "OWNER",
     } });
     await tx.category.createMany({ data: [
       ...["Salary", "Business", "Rental", "Investment", "Other"].map(name => ({ householdId: household.id, name, type: "INCOME", color: "#12876A", isSystem: true })),

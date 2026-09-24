@@ -11,7 +11,6 @@ import type { UserRole } from "@/lib/constants";
 export type CurrentUser = {
   id: string;
   name: string;
-  email: string;
   role: UserRole;
   householdId: string;
 };
@@ -25,7 +24,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   // they still hold a valid cookie.
   const user = await prisma.user.findFirst({
     where: { id: session.userId, isActive: true, role: "OWNER" },
-    select: { id: true, name: true, email: true, role: true, householdId: true, sessionVersion: true },
+    select: { id: true, name: true, role: true, householdId: true, sessionVersion: true },
   });
   if (!user || user.role !== "OWNER" || session.sessionVersion !== user.sessionVersion) return null;
 
@@ -33,7 +32,6 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   return {
     id: user.id,
     name: user.name,
-    email: user.email,
     role: user.role as UserRole,
     householdId: user.householdId,
   };

@@ -18,7 +18,6 @@ export async function exportHouseholdData(householdId: string) {
         where: { householdId },
         select: {
           id: true,
-          email: true,
           name: true,
           role: true,
           isActive: true,

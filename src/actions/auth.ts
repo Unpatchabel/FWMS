@@ -2,8 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { prisma } from "@/lib/prisma";
-import { verifyPassword } from "@/lib/password";
+import { authenticateOwner } from "@/services/account.service";
 import { SESSION_COOKIE, createSessionToken, sessionCookieOptions } from "@/lib/session";
 import { loginSchema } from "@/lib/validators";
 import { setupSchema } from "@/lib/validators";
@@ -12,7 +11,7 @@ import type { UserRole } from "@/lib/constants";
 import type { ActionResult } from "./types";
 
 /** One owner per installation. The fixed household key also closes concurrent setup attempts. */
-export async function setupAction(input: { email: string; password: string; currency: string }): Promise<ActionResult> {
+export async function setupAction(input: { username: string; password: string; currency: string }): Promise<ActionResult> {
   const parsed = setupSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input." };
   try {
@@ -33,7 +32,7 @@ export async function setupAction(input: { email: string; password: string; curr
  * Action from client code.
  */
 export async function loginAction(input: {
-  email: string;
+  username: string;
   password: string;
 }): Promise<ActionResult> {
   const parsed = loginSchema.safeParse(input);
@@ -41,15 +40,9 @@ export async function loginAction(input: {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input." };
   }
 
-  const { email, password } = parsed.data;
-  const user = await prisma.user.findUnique({
-    where: { email: email.toLowerCase() },
-  });
-
-  const ok =
-    user && user.isActive && (await verifyPassword(password, user.passwordHash));
-  if (!ok || !user || user.role !== "OWNER") {
-    return { ok: false, error: "Incorrect email or password." };
+  const user = await authenticateOwner(parsed.data);
+  if (!user) {
+    return { ok: false, error: "Incorrect username or password." };
   }
 
   const token = await createSessionToken({

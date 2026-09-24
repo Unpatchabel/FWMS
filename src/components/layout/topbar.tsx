@@ -9,12 +9,12 @@ import { logoutAction } from "@/actions/auth";
  * (see src/app/api/backup/route.ts) — a browser download needs response
  * headers a Server Action can't provide.
  */
-export function Topbar({ canExport }: { canExport: boolean }) {
+export function Topbar({ canExport, username }: { canExport: boolean; username: string }) {
   return (
     <header className="flex items-center justify-between gap-3 border-b border-beige-border bg-canvas/80 backdrop-blur px-4 py-4 sm:px-6">
       <div className="min-w-0">
         <p className="text-sm text-ink-soft">Welcome back</p>
-        <p className="font-display text-2xl text-ink leading-tight">Owner</p>
+        <p className="font-display text-2xl text-ink leading-tight break-words">{username}</p>
       </div>
 
       <div className="flex shrink-0 items-center gap-2">

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import { changeOwnPasswordAction } from "@/actions/account";
 
-export function PasswordManager({ email }: { email: string }) {
+export function PasswordManager() {
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +37,7 @@ export function PasswordManager({ email }: { email: string }) {
   return <>
     <Card className="min-w-0 p-5 sm:p-6">
       <h2 className="font-display text-xl text-ink">Your sign-in</h2>
-      <p className="mt-1 text-sm text-ink-soft">{email}</p>
+      <p className="mt-1 text-sm text-ink-soft">Update the password for this account.</p>
       <Button variant="secondary" type="button" className="mt-4" onClick={() => { setError(null); setOpen(true); }}>
         Change password
       </Button>

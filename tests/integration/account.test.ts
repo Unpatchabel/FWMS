@@ -1,10 +1,29 @@
 import { describe, expect, it } from "vitest";
 import { prisma } from "@/lib/prisma";
 import { hashPassword, verifyPassword } from "@/lib/password";
-import { changeOwnPassword, AccountValidationError } from "@/services/account.service";
+import { authenticateOwner, changeOwnUsername, changeOwnPassword, AccountValidationError } from "@/services/account.service";
 import { createTestHousehold } from "../setup/helpers";
 
 describe("owner account", () => {
+  it("signs in with a username and safely changes it without losing account history", async () => {
+    const { household, user } = await createTestHousehold();
+    const password = "owner-password-123";
+    await prisma.user.update({ where: { id: user.id }, data: {
+      name: `Tony-${user.id}`, passwordHash: await hashPassword(password),
+    } });
+    expect((await authenticateOwner({ username: `tony-${user.id}`, password }))?.id).toBe(user.id);
+    await expect(changeOwnUsername(household.id, user.id, {
+      username: "New name", currentPassword: "wrong",
+    })).rejects.toThrow(AccountValidationError);
+    const changed = await changeOwnUsername(household.id, user.id, {
+      username: `New-${user.id}`, currentPassword: password,
+    });
+    expect(changed.sessionVersion).toBe(1);
+    expect((await authenticateOwner({ username: `tony-${user.id}`, password }))).toBeNull();
+    expect((await authenticateOwner({ username: `NEW-${user.id}`, password }))?.id).toBe(user.id);
+    expect((await prisma.user.findUniqueOrThrow({ where: { id: user.id } })).householdId).toBe(household.id);
+  });
+
   it("requires the current password and revokes old sessions when it changes", async () => {
     const { household, user } = await createTestHousehold();
     await prisma.user.update({ where: { id: user.id }, data: { passwordHash: await hashPassword("owner-password-123") } });

@@ -9,8 +9,11 @@ import { LEDGER_CURRENCIES } from "@/lib/currencies";
  * service or database layer. Schemas grow as features are added.
  */
 
+export const usernameSchema = z.string().trim().min(1, "Enter a username")
+  .max(40, "Use at most 40 characters");
+
 export const loginSchema = z.object({
-  email: z.string().email("Enter a valid email address"),
+  username: usernameSchema,
   password: z.string().min(1, "Password is required"),
 });
 
@@ -22,7 +25,7 @@ const newPassword = z.string().min(12, "Use at least 12 characters")
   .refine((value) => new TextEncoder().encode(value).length <= 72, "Use at most 72 bytes");
 
 export const setupSchema = z.object({
-  email: z.string().trim().email("Enter a valid email address"),
+  username: usernameSchema,
   password: newPassword,
   currency: z.enum(LEDGER_CURRENCIES),
 });
@@ -34,6 +37,12 @@ export const changePasswordSchema = z.object({
   message: "Choose a different password", path: ["newPassword"],
 });
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+
+export const changeUsernameSchema = z.object({
+  username: usernameSchema,
+  currentPassword: z.string().min(1, "Enter your current password"),
+});
+export type ChangeUsernameInput = z.infer<typeof changeUsernameSchema>;
 
 // ---------------------------------------------------------------------------
 // Money — a string the user typed, checked here so a malformed amount never

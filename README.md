@@ -8,7 +8,7 @@ Download the **FWMS** installer for your computer from
 [GitHub Releases](https://github.com/Unpatchabel/FWMS/releases) when the first
 desktop release is published. Open the installer, open FWMS, and press **Start
 FWMS**. The app prepares its private database on first launch, then asks you
-to create your owner account and choose a currency. You do not need Node.js,
+to choose a username, password, and ledger currency. You do not need Node.js,
 Git, a terminal, or a hosted account to use a desktop release.
 
 Your records are stored in your computer's application data folder; saved
@@ -337,7 +337,7 @@ Open:
 http://localhost:3000
 ```
 
-On a new installation FWMS opens `/setup`. Enter your owner email, a password
+On a new installation FWMS opens `/setup`. Enter a username, a password
 of at least 12 characters, and your ledger currency. Setup creates one owner
 and default categories; all financial values begin empty. Registration closes
 after the first owner is created. Existing installs retain their owner and AED
@@ -363,14 +363,19 @@ non-English category names so the report preserves every character.
 
 #  Sign in
 
-Use the owner email and password you chose on `/setup`. Do not
+Use the username and password you chose on `/setup`. No email address is needed. Do not
 commit `.env` or your SQLite database to Git.
 
 ## Owner access
 
 Each installation creates one owner login and its own local SQLite database.
-The owner can change their password under Settings; this signs out all existing
-sessions. Member and viewer logins from older installations are denied, but
+The owner can change their username or password under Settings. The username
+appears under "Welcome back" and on the sign-in screen. Changing either
+credential invalidates other sessions; changing the password also signs out
+the current session. Existing owner accounts use their stored display name
+("Owner" on earlier installs) to sign in with their existing password. The
+database migration removes the previous email column while preserving users
+and financial records. Member and viewer logins from older installations are denied, but
 their historical financial records remain in the database.
 
 FWMS is intended for use on the computer that runs it. Each person who clones

@@ -13,7 +13,6 @@ export async function createTestHousehold(namePrefix = "Test") {
   const user = await prisma.user.create({
     data: {
       householdId: household.id,
-      email: `${household.id}@example.test`,
       name: "Test Owner",
       passwordHash: "unused-in-tests",
       role: "OWNER",

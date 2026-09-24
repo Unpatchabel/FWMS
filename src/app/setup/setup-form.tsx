@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export function SetupForm() {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [currency, setCurrency] = useState("AED");
   const [error, setError] = useState("");
@@ -14,15 +14,15 @@ export function SetupForm() {
   async function submit(event: FormEvent) {
     event.preventDefault(); setBusy(true); setError("");
     try {
-      const result = await setupAction({ email, password, currency });
+      const result = await setupAction({ username, password, currency });
       if (result.ok) window.location.assign("/dashboard");
       else setError(result.error);
     } catch { setError("Setup failed. Please try again."); }
     finally { setBusy(false); }
   }
   return <form onSubmit={submit} className="space-y-4">
-    <label className="block text-sm text-ink-soft">Email
-      <Input className="mt-1" type="email" autoComplete="email" required value={email} onChange={event => setEmail(event.target.value)} />
+    <label className="block text-sm text-ink-soft">Username
+      <Input className="mt-1" type="text" autoComplete="username" maxLength={40} required value={username} onChange={event => setUsername(event.target.value)} />
     </label>
     <label className="block text-sm text-ink-soft">Password (at least 12 characters)
       <Input className="mt-1" type="password" autoComplete="new-password" minLength={12} required value={password} onChange={event => setPassword(event.target.value)} />

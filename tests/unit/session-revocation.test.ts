@@ -10,7 +10,7 @@ describe("revoked sessions", () => {
   it("rejects a signed token after the user's password or access changes", async () => {
     mocks.getSession.mockResolvedValue({ userId: "a", sessionVersion: 0 });
     mocks.findFirst.mockResolvedValue({
-      id: "a", name: "Parent", email: "parent@example.test", role: "OWNER",
+      id: "a", name: "Parent", role: "OWNER",
       householdId: "family", sessionVersion: 1,
     });
     expect(await getCurrentUser()).toBeNull();
@@ -19,7 +19,7 @@ describe("revoked sessions", () => {
   it("rejects a legacy member or viewer even with a valid signed session", async () => {
     mocks.getSession.mockResolvedValue({ userId: "a", sessionVersion: 1 });
     mocks.findFirst.mockResolvedValue({
-      id: "a", name: "Parent", email: "parent@example.test", role: "VIEWER",
+      id: "a", name: "Parent", role: "VIEWER",
       householdId: "family", sessionVersion: 1,
     });
     expect(await getCurrentUser()).toBeNull();
