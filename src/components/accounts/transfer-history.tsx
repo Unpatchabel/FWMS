@@ -1,7 +1,9 @@
+"use client";
+
 import { format } from "date-fns";
 import { ArrowRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatAED } from "@/lib/money";
+import { useMoney } from "@/components/currency-context";
 
 type TransferRow = {
   id: string;
@@ -13,6 +15,7 @@ type TransferRow = {
 };
 
 export function TransferHistory({ transfers }: { transfers: TransferRow[] }) {
+  const { format: formatAED } = useMoney();
   return (
     <Card>
       <CardHeader><CardTitle>Recent transfers</CardTitle></CardHeader>

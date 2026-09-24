@@ -1,8 +1,12 @@
 import { LoginForm } from "./login-form";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
+import { isInstallationConfigured } from "@/services/setup.service";
+
+export const dynamic = "force-dynamic";
 
 export default async function LoginPage() {
+  if (!await isInstallationConfigured()) redirect("/setup");
   if (await getCurrentUser()) redirect("/dashboard");
   return (
     <main className="min-h-screen grid lg:grid-cols-2">

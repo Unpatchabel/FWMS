@@ -1,5 +1,8 @@
 "use client";
 
+import { useCurrency } from "@/components/currency-context";
+
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +23,7 @@ export function ValuationForm({
   assetName: string;
   onSuccess: () => void;
 }) {
+  const currency = useCurrency();
   const [valueAed, setValueAed] = useState("");
   const [valuationDate, setValuationDate] = useState(todayIso());
   const [source, setSource] = useState("estimate");
@@ -57,7 +61,7 @@ export function ValuationForm({
       </p>
 
       <div>
-        <label className="block text-sm text-ink-soft mb-1">New value (AED)</label>
+        <label className="block text-sm text-ink-soft mb-1">New value ({currency})</label>
         <Input
           inputMode="decimal"
           placeholder="0.00"

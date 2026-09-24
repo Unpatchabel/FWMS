@@ -1,9 +1,9 @@
 /**
  * Money handling for FWMS.
  *
- * INVARIANT: money is stored and computed as INTEGER FILS everywhere in the
- * app. 1 AED = 100 fils. Floating-point never touches a stored monetary value.
- * This file is the ONLY place that converts between fils and human-facing AED.
+ * INVARIANT: money is stored and computed in INTEGER HUNDREDTHS everywhere.
+ * Existing internal names say fils/AED for compatibility with older code.
+ * Only two-decimal currencies may be selected as a ledger base.
  */
 
 export const FILS_PER_AED = 100;
@@ -31,7 +31,7 @@ export function aedToFils(input: string | number): number {
     throw new Error(`Invalid monetary amount: "${input}"`);
   }
   if (Math.abs(value) > MAX_ABS_AED) {
-    throw new Error(`Amount is too large (max ${MAX_ABS_AED.toLocaleString()} AED).`);
+    throw new Error(`Amount is too large (max ${MAX_ABS_AED.toLocaleString()} ledger units).`);
   }
   // Round via cents to avoid float drift (e.g. 12.34 * 100 = 1233.9999...).
   return Math.round(value * FILS_PER_AED);
@@ -48,9 +48,9 @@ export function filsToAed(fils: number): number {
  */
 export function formatAED(
   fils: number,
-  opts: { withSymbol?: boolean; signed?: boolean } = {}
+  opts: { withSymbol?: boolean; signed?: boolean; currency?: string } = {}
 ): string {
-  const { withSymbol = true, signed = false } = opts;
+  const { withSymbol = true, signed = false, currency = "AED" } = opts;
   const negative = fils < 0;
   const absAed = Math.abs(fils) / FILS_PER_AED;
   const number = absAed.toLocaleString("en-AE", {
@@ -58,17 +58,17 @@ export function formatAED(
     maximumFractionDigits: 2,
   });
   const sign = negative ? "-" : signed ? "+" : "";
-  const symbol = withSymbol ? "AED " : "";
+  const symbol = withSymbol ? `${currency} ` : "";
   return `${sign}${symbol}${number}`;
 }
 
 /** Compact format for tight spaces: 1250000000 fils -> "AED 12.5M". */
-export function formatAEDCompact(fils: number): string {
+export function formatAEDCompact(fils: number, currency = "AED"): string {
   const negative = fils < 0;
   const aed = Math.abs(fils) / FILS_PER_AED;
   const compact = new Intl.NumberFormat("en-AE", {
     notation: "compact",
     maximumFractionDigits: 1,
   }).format(aed);
-  return `${negative ? "-" : ""}AED ${compact}`;
+  return `${negative ? "-" : ""}${currency} ${compact}`;
 }

@@ -49,7 +49,7 @@ export async function exportHouseholdData(householdId: string) {
     exportedAt: new Date().toISOString(),
     schemaVersion: 1,
     currency: household?.currency ?? "AED",
-    moneyUnit: "fils (1 AED = 100 fils)",
+    moneyUnit: `hundredths (1 ${household?.currency ?? "AED"} = 100 units)`,
     household,
     users,
     accounts,

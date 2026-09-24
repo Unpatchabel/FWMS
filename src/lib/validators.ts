@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { aedToFils } from "@/lib/money";
 import { ACCOUNT_TYPES, CATEGORY_TYPES, ASSET_TYPES } from "@/lib/constants";
+import { LEDGER_CURRENCIES } from "@/lib/currencies";
 
 /**
  * Shared validation schemas.
@@ -20,6 +21,12 @@ export type LoginInput = z.infer<typeof loginSchema>;
 const newPassword = z.string().min(12, "Use at least 12 characters")
   .refine((value) => new TextEncoder().encode(value).length <= 72, "Use at most 72 bytes");
 
+export const setupSchema = z.object({
+  email: z.string().trim().email("Enter a valid email address"),
+  password: newPassword,
+  currency: z.enum(LEDGER_CURRENCIES),
+});
+
 export const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, "Enter your current password"),
   newPassword,
@@ -34,7 +41,7 @@ export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 // itself; this only guarantees it won't throw when it does.
 // ---------------------------------------------------------------------------
 
-/** Any valid signed AED amount (used for opening balances, which may be negative). */
+/** Any valid signed ledger amount (used for opening balances, which may be negative). */
 const signedAmountAed = z
   .string()
   .trim()
@@ -48,13 +55,13 @@ const signedAmountAed = z
     }
   }, "Enter a valid amount, e.g. 1250.50");
 
-/** A strictly positive AED amount (income/expense entry — sign is applied server-side). */
+/** A strictly positive ledger amount (income/expense entry — sign is applied server-side). */
 const positiveAmountAed = signedAmountAed.refine(
   (v) => aedToFils(v) > 0,
   "Enter an amount greater than zero"
 );
 
-/** An AED amount that must be zero or more (e.g. a loan's opening balance). */
+/** A ledger amount that must be zero or more (e.g. a loan's opening balance). */
 const nonNegativeAmountAed = signedAmountAed.refine(
   (v) => aedToFils(v) >= 0,
   "Enter an amount of zero or more"

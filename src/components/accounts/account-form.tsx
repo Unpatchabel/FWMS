@@ -1,5 +1,8 @@
 "use client";
 
+import { useCurrency } from "@/components/currency-context";
+
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +11,7 @@ import { ACCOUNT_TYPES, ACCOUNT_TYPE_LABELS, type AccountType } from "@/lib/cons
 import { createAccountAction } from "@/actions/accounts";
 
 export function AccountForm({ onSuccess }: { onSuccess: () => void }) {
+  const currency = useCurrency();
   const [name, setName] = useState("");
   const [type, setType] = useState<AccountType>("CHECKING");
   const [institution, setInstitution] = useState("");
@@ -69,7 +73,7 @@ export function AccountForm({ onSuccess }: { onSuccess: () => void }) {
 
       <div>
         <label className="block text-sm text-ink-soft mb-1">
-          Opening balance (AED) <span className="text-silver-muted">(optional)</span>
+          Opening balance ({currency}) <span className="text-silver-muted">(optional)</span>
         </label>
         <Input
           inputMode="decimal"

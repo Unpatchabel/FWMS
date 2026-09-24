@@ -127,7 +127,7 @@ export async function recordAssetValuation(
         action: "CREATE",
         entity: "AssetValuation",
         entityId: valuation.id,
-        summary: `Recorded valuation of ${(valueFils / 100).toFixed(2)} AED for "${asset.name}"`,
+        summary: `Recorded valuation of ${(valueFils / 100).toFixed(2)} ledger units for "${asset.name}"`,
       },
       tx
     );

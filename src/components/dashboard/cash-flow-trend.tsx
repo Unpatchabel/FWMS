@@ -1,8 +1,11 @@
+"use client";
+
 import { Card } from "@/components/ui/card";
-import { formatAED } from "@/lib/money";
+import { useMoney } from "@/components/currency-context";
 import type { MonthlyTrend } from "@/services/dashboard-analytics.service";
 
 export function CashFlowTrend({ months }: { months: MonthlyTrend[] }) {
+  const { format: formatAED } = useMoney();
   const max = Math.max(1, ...months.flatMap((m) => [m.incomeFils, m.spendingFils]));
   const hasData = months.some((m) => m.incomeFils > 0 || m.spendingFils > 0);
 

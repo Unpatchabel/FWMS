@@ -1,5 +1,8 @@
 "use client";
 
+import { useCurrency } from "@/components/currency-context";
+
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeftRight } from "lucide-react";
@@ -18,6 +21,7 @@ function todayIso() {
 }
 
 export function QuickTransfer({ accounts }: { accounts: AccountOption[] }) {
+  const currency = useCurrency();
   const [open, setOpen] = useState(false);
   const [fromSelection, setFromSelection] = useState("");
   const [toSelection, setToSelection] = useState("");
@@ -90,7 +94,7 @@ export function QuickTransfer({ accounts }: { accounts: AccountOption[] }) {
             </Select>
           </label>
           <label className="block text-sm text-ink-soft">
-            Amount (AED)
+            Amount ({currency})
             <Input inputMode="decimal" value={amountAed} onChange={(e) => setAmountAed(e.target.value)} placeholder="0.00" required className="mt-1" />
           </label>
           <label className="block text-sm text-ink-soft">

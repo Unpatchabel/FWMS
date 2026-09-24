@@ -37,7 +37,7 @@ datasource db {
 model Household {
   id        String   @id @default(cuid())
   name      String
-  currency  String   @default("AED") // reserved for future multi-currency
+  currency  String   @default("AED") // one fixed ledger currency per installation
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

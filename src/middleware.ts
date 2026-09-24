@@ -11,7 +11,7 @@ export async function middleware(request: NextRequest) {
   const session = token ? await verifySessionToken(token) : null;
 
   const { pathname } = request.nextUrl;
-  const isAuthPage = pathname === "/login";
+  const isAuthPage = pathname === "/login" || pathname === "/setup";
 
   // The edge guard cannot check DB sessionVersion; let signed cookies reach
   // /login so revoked sessions can sign in again instead of looping through

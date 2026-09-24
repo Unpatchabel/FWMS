@@ -191,9 +191,9 @@ export async function recordLoanPayment(
     );
     if (principalFils > remainingBeforePayment) {
       throw new LoanValidationError(
-        `This payment's principal (${(principalFils / 100).toFixed(2)} AED) exceeds the loan's remaining balance (${(
+        `This payment's principal (${(principalFils / 100).toFixed(2)} ledger units) exceeds the loan's remaining balance (${(
           remainingBeforePayment / 100
-        ).toFixed(2)} AED).`
+        ).toFixed(2)} ledger units).`
       );
     }
 
@@ -239,7 +239,7 @@ export async function recordLoanPayment(
         action: "CREATE",
         entity: "LoanPayment",
         entityId: payment.id,
-        summary: `Recorded payment of ${(amountFils / 100).toFixed(2)} AED on "${loan.name}"`,
+        summary: `Recorded payment of ${(amountFils / 100).toFixed(2)} ledger units on "${loan.name}"`,
       },
       tx
     );

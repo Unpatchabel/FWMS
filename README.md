@@ -4,7 +4,7 @@
 
 > **A private, self-hosted financial dashboard for one owner.**
 > Track wealth, accounts, income, expenses, assets, and liabilities from your own machine.
-> No cloud dependency. No external AI. No paid APIs.
+> Your ledger stays on your computer. Currency conversion uses an external reference rate service.
 
 ---
 
@@ -269,31 +269,25 @@ Create environment:
 cp .env.example .env
 ```
 
-Set `FWMS_OWNER_EMAIL` and `FWMS_OWNER_PASSWORD` in `.env` to your own email
-and a unique password of at least 12 characters. Generate an authentication secret
-and set `AUTH_SECRET` in `.env`:
+Generate an authentication secret and set `AUTH_SECRET` in `.env`:
 
 ```bash
 openssl rand -base64 48
 ```
 
-Set up a fresh database and create your owner login:
+Apply the database migrations:
 
 ```bash
 npm run setup
 ```
 
-Setup creates one OWNER and the default income/expense categories. Accounts,
-transactions, assets, loans, and goals start empty. It refuses to seed an
-existing household and does not delete existing data. Each installation uses
-its own local SQLite database; your GitHub repository contains no `.db` file.
-After setup, remove `FWMS_OWNER_PASSWORD` from `.env`; your hashed password
-is stored in the local database and the setup password is no longer needed.
+This does not create an owner or touch existing financial records. Each
+installation uses its own local SQLite database; Git does not include it.
 
 Start application:
 
 ```bash
-npm run dev
+npm run dev -- --hostname 127.0.0.1
 ```
 
 Open:
@@ -302,11 +296,33 @@ Open:
 http://localhost:3000
 ```
 
+On a new installation FWMS opens `/setup`. Enter your owner email, a password
+of at least 12 characters, and your ledger currency. Setup creates one owner
+and default categories; all financial values begin empty. Registration closes
+after the first owner is created. Existing installs retain their owner and AED
+ledger. Do not choose a new currency for existing records by editing the DB:
+that would relabel historical money without converting it.
+
+The ledger currently supports the listed two-decimal currencies. Every record
+within an installation uses that currency; the converter under Tools is a
+separate reference calculation and never changes stored balances. Its latest
+available rates come from Frankfurter (which publishes reference rates, not
+live trading quotes), and the app shows the provider's rate date. An internet
+connection is needed to convert between currencies.
+
+On Reports, select a month and save a PDF or editable Word (.docx) snapshot.
+Saved reports appear under Recent documents for download. Reports are also
+written to `~/Documents/FWMS-Recent-Docs` on the machine hosting FWMS; set
+`FWMS_DOCUMENTS_DIR` in `.env` to change the server-side folder. Back up that
+folder separately from your SQLite database and keep it private.
+PDF export currently supports ASCII category names; use Word export for
+non-English category names so the report preserves every character.
+
 ---
 
 #  Sign in
 
-Use the owner email and password you set in your local `.env` file. Do not
+Use the owner email and password you chose on `/setup`. Do not
 commit `.env` or your SQLite database to Git.
 
 ## Owner access

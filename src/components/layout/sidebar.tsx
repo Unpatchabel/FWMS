@@ -11,6 +11,7 @@ import {
   Landmark,
   PieChart,
   Settings,
+  Wrench,
   Target,
   type LucideIcon,
 } from "lucide-react";
@@ -31,6 +32,7 @@ const NAV: NavItem[] = [
   { label: "Assets", href: "/assets", icon: Building2, ready: true },
   { label: "Loans", href: "/loans", icon: Landmark, ready: true },
   { label: "Reports", href: "/reports", icon: PieChart, ready: true },
+  { label: "Tools", href: "/tools", icon: Wrench, ready: true },
   { label: "Settings", href: "/settings", icon: Settings, ready: true },
   { label: "Goals", href: "/goals", icon: Target, ready: false },
 ];

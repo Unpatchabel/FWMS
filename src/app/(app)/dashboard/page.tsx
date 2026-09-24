@@ -6,8 +6,9 @@ import {
   Receipt,
   PiggyBank,
 } from "lucide-react";
+import { getHouseholdCurrency } from "@/services/currency.service";
 import { requireUser, canWrite, isOwner } from "@/lib/auth";
-import { formatAED } from "@/lib/money";
+import { formatAED as formatLedgerMoney } from "@/lib/money";
 import {
   getFinancialSummary,
   getRecentTransactions,
@@ -29,6 +30,8 @@ export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
   const user = await requireUser();
+  const currency = await getHouseholdCurrency(user.householdId);
+  const formatAED = (value: number) => formatLedgerMoney(value, { currency });
   const { householdId } = user;
 
   const [summary, analytics, recent, accounts, incomeCategories, expenseCategories] =

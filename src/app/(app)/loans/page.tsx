@@ -1,5 +1,6 @@
+import { getHouseholdCurrency } from "@/services/currency.service";
 import { requireUser, canWrite } from "@/lib/auth";
-import { formatAED } from "@/lib/money";
+import { formatAED as formatLedgerMoney } from "@/lib/money";
 import { listLoans } from "@/services/loans.service";
 import { listAccounts } from "@/services/accounts.service";
 import { LoansTable } from "@/components/loans/loans-table";
@@ -10,6 +11,8 @@ export const dynamic = "force-dynamic";
 
 export default async function LoansPage() {
   const user = await requireUser();
+  const currency = await getHouseholdCurrency(user.householdId);
+  const formatAED = (value: number) => formatLedgerMoney(value, { currency });
   const [loans, accounts] = await Promise.all([
     listLoans(user.householdId),
     listAccounts(user.householdId),

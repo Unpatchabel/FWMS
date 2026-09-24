@@ -1,5 +1,8 @@
 "use client";
 
+import { useCurrency } from "@/components/currency-context";
+
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +27,7 @@ export function PaymentForm({
   accounts: AccountOption[];
   onSuccess: () => void;
 }) {
+  const currency = useCurrency();
   const [accountId, setAccountId] = useState(accounts[0]?.id ?? "");
   const [amountAed, setAmountAed] = useState("");
   const [interestAed, setInterestAed] = useState("");
@@ -94,7 +98,7 @@ export function PaymentForm({
       </div>
 
       <div>
-        <label className="block text-sm text-ink-soft mb-1">Total payment (AED)</label>
+        <label className="block text-sm text-ink-soft mb-1">Total payment ({currency})</label>
         <Input
           inputMode="decimal"
           placeholder="0.00"
@@ -106,7 +110,7 @@ export function PaymentForm({
 
       <div>
         <label className="block text-sm text-ink-soft mb-1">
-          Portion to interest (AED) <span className="text-silver-muted">(0 if none)</span>
+          Portion to interest ({currency}) <span className="text-silver-muted">(0 if none)</span>
         </label>
         <Input
           inputMode="decimal"
@@ -118,7 +122,7 @@ export function PaymentForm({
         <p className="text-xs text-ink-soft mt-1">
           {principalPreview !== null
             ? principalPreview >= 0
-              ? `${principalPreview.toFixed(2)} AED will reduce the balance.`
+              ? `${principalPreview.toFixed(2)} ${currency} will reduce the balance.`
               : "Interest can't exceed the total payment."
             : "The rest reduces the loan balance — you don't need to enter it separately."}
         </p>

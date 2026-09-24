@@ -1,7 +1,9 @@
+"use client";
+
 import { Wallet, Landmark, Banknote, CreditCard, TrendingUp, PiggyBank } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { formatAED } from "@/lib/money";
+import { useMoney } from "@/components/currency-context";
 import { ACCOUNT_TYPE_LABELS, type AccountType } from "@/lib/constants";
 import type { AccountWithBalance } from "@/services/accounts.service";
 
@@ -15,6 +17,7 @@ const TYPE_ICON: Record<AccountType, LucideIcon> = {
 };
 
 export function AccountsTable({ accounts, canWrite }: { accounts: AccountWithBalance[]; canWrite: boolean }) {
+  const { format: formatAED } = useMoney();
   if (accounts.length === 0) {
     return (
       <Card className="p-10 text-center">

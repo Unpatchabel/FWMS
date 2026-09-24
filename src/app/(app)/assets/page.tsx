@@ -1,5 +1,6 @@
+import { getHouseholdCurrency } from "@/services/currency.service";
 import { requireUser, canWrite } from "@/lib/auth";
-import { formatAED } from "@/lib/money";
+import { formatAED as formatLedgerMoney } from "@/lib/money";
 import { listAssets } from "@/services/assets.service";
 import { AssetsTable } from "@/components/assets/assets-table";
 import { QuickAddAsset } from "@/components/assets/quick-add-asset";
@@ -9,6 +10,8 @@ export const dynamic = "force-dynamic";
 
 export default async function AssetsPage() {
   const user = await requireUser();
+  const currency = await getHouseholdCurrency(user.householdId);
+  const formatAED = (value: number) => formatLedgerMoney(value, { currency });
   const assets = await listAssets(user.householdId);
   const totalFils = assets.reduce((sum, a) => sum + a.currentValueFils, 0);
 

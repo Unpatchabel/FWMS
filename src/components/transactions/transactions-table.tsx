@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { Trash2 } from "lucide-react";
-import { formatAED } from "@/lib/money";
+import { useMoney } from "@/components/currency-context";
 import { voidTransactionAction } from "@/actions/transactions";
 
 type Row = {
@@ -27,6 +27,7 @@ export function TransactionsTable({
   canDelete: boolean;
   emptyLabel: string;
 }) {
+  const { format: formatAED } = useMoney();
   const router = useRouter();
   const [pendingId, setPendingId] = useState<string | null>(null);
 

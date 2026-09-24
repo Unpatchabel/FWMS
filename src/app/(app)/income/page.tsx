@@ -1,6 +1,7 @@
 import { Suspense } from "react";
+import { getHouseholdCurrency } from "@/services/currency.service";
 import { requireUser, canWrite, isOwner } from "@/lib/auth";
-import { formatAED } from "@/lib/money";
+import { formatAED as formatLedgerMoney } from "@/lib/money";
 import { listTransactionsByType, type PeriodFilter } from "@/services/transactions.service";
 import { listCategories } from "@/services/categories.service";
 import { listAccounts } from "@/services/accounts.service";
@@ -20,6 +21,8 @@ export default async function IncomePage({
   searchParams: Promise<{ period?: string; categoryId?: string; q?: string }>;
 }) {
   const user = await requireUser();
+  const currency = await getHouseholdCurrency(user.householdId);
+  const formatAED = (value: number) => formatLedgerMoney(value, { currency });
   const filters = await searchParams;
   const period: PeriodFilter = VALID_PERIODS.includes(
     filters.period as PeriodFilter

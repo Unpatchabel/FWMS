@@ -1,6 +1,8 @@
+"use client";
+
 import { format } from "date-fns";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { formatAED } from "@/lib/money";
+import { useMoney } from "@/components/currency-context";
 
 type Row = {
   id: string;
@@ -15,6 +17,7 @@ type Row = {
 
 /** Recent ledger activity. Amounts show their sign; income green, expense red. */
 export function RecentActivity({ transactions }: { transactions: Row[] }) {
+  const { format: formatAED } = useMoney();
   return (
     <Card>
       <CardHeader>

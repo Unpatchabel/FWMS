@@ -162,7 +162,7 @@ export async function createTransaction(
         entityId: created.id,
         summary: `${input.type === "INCOME" ? "Income" : "Expense"} of ${(
           magnitude / 100
-        ).toFixed(2)} AED (${category.name})`,
+        ).toFixed(2)} ledger units (${category.name})`,
       },
       tx
     );
@@ -228,7 +228,7 @@ export async function createTransfer(
       action: "CREATE",
       entity: "Transfer",
       entityId: transferGroupId,
-      summary: `Transferred ${(amountFils / 100).toFixed(2)} AED from ${accounts.find((a) => a.id === input.fromAccountId)!.name} to ${accounts.find((a) => a.id === input.toAccountId)!.name}`,
+      summary: `Transferred ${(amountFils / 100).toFixed(2)} ledger units from ${accounts.find((a) => a.id === input.fromAccountId)!.name} to ${accounts.find((a) => a.id === input.toAccountId)!.name}`,
     }, tx);
 
     return { transferGroupId, debit, credit };
@@ -282,7 +282,7 @@ export async function recordAdjustment(
       action: "CREATE",
       entity: "Transaction",
       entityId: created.id,
-      summary: `Adjustment of ${(params.amountFils / 100).toFixed(2)} AED (${
+      summary: `Adjustment of ${(params.amountFils / 100).toFixed(2)} ledger units (${
         params.description
       })`,
     },
@@ -346,7 +346,7 @@ export async function recordLinkedTransaction(
       entityId: created.id,
       summary: `${params.type === "INCOME" ? "Income" : "Expense"} of ${(
         Math.abs(params.amountFils) / 100
-      ).toFixed(2)} AED (${params.description})`,
+      ).toFixed(2)} ledger units (${params.description})`,
     },
     db
   );
@@ -406,7 +406,7 @@ export async function voidTransaction(
         entityId: transactionId,
         summary: `Voided ${existing.type.toLowerCase()} of ${(
           Math.abs(existing.amount) / 100
-        ).toFixed(2)} AED`,
+        ).toFixed(2)} ledger units`,
       },
       tx
     );

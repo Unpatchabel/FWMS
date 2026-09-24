@@ -1,11 +1,15 @@
 "use client";
 
+import { useCurrency } from "@/components/currency-context";
+
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createLoanAction } from "@/actions/loans";
 
 export function LoanForm({ onSuccess }: { onSuccess: () => void }) {
+  const currency = useCurrency();
   const [name, setName] = useState("");
   const [lender, setLender] = useState("");
   const [originalAmountAed, setOriginalAmountAed] = useState("");
@@ -62,7 +66,7 @@ export function LoanForm({ onSuccess }: { onSuccess: () => void }) {
       </div>
 
       <div>
-        <label className="block text-sm text-ink-soft mb-1">Original loan amount (AED)</label>
+        <label className="block text-sm text-ink-soft mb-1">Original loan amount ({currency})</label>
         <Input
           inputMode="decimal"
           placeholder="0.00"
@@ -73,7 +77,7 @@ export function LoanForm({ onSuccess }: { onSuccess: () => void }) {
       </div>
 
       <div>
-        <label className="block text-sm text-ink-soft mb-1">Balance remaining today (AED)</label>
+        <label className="block text-sm text-ink-soft mb-1">Balance remaining today ({currency})</label>
         <Input
           inputMode="decimal"
           placeholder="0.00"
@@ -88,7 +92,7 @@ export function LoanForm({ onSuccess }: { onSuccess: () => void }) {
 
       <div>
         <label className="block text-sm text-ink-soft mb-1">
-          Monthly payment (AED) <span className="text-silver-muted">(optional)</span>
+          Monthly payment ({currency}) <span className="text-silver-muted">(optional)</span>
         </label>
         <Input
           inputMode="decimal"

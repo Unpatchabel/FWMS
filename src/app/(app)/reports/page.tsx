@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { requireUser } from "@/lib/auth";
-import { formatAED } from "@/lib/money";
+import { getHouseholdCurrency } from "@/services/currency.service";
+import { formatAED as formatLedgerMoney } from "@/lib/money";
 import { Card } from "@/components/ui/card";
 import { getMonthlyReport, type ReportCategory } from "@/services/reports.service";
+import { recentDocuments } from "@/services/document.service";
+import { ReportDocuments } from "@/components/reports/report-documents";
 
 export const dynamic = "force-dynamic";
 
@@ -17,12 +20,15 @@ export default async function ReportsPage({
   searchParams: Promise<{ month?: string }>;
 }) {
   const user = await requireUser();
+  const currency = await getHouseholdCurrency(user.householdId);
+  const formatAED = (value: number) => formatLedgerMoney(value, { currency });
   const selected = (await searchParams).month;
   const valid = selected && /^(19|20)\d{2}-(0[1-9]|1[0-2])$/.test(selected);
   const ref = valid
     ? new Date(Number(selected.slice(0, 4)), Number(selected.slice(5)) - 1, 1)
     : new Date();
   const report = await getMonthlyReport(user.householdId, ref);
+  const recent = await recentDocuments();
   const monthName = new Intl.DateTimeFormat("en-AE", { month: "long", year: "numeric" }).format(ref);
   const previous = monthKey(new Date(ref.getFullYear(), ref.getMonth() - 1, 1));
   const next = monthKey(new Date(ref.getFullYear(), ref.getMonth() + 1, 1));
@@ -69,11 +75,12 @@ export default async function ReportsPage({
       </Card>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <CategoryCard title="Spending by category" categories={report.spendingCategories}
+        <CategoryCard currency={currency} title="Spending by category" categories={report.spendingCategories}
           totalFils={report.spendingFils} empty="No spending this month." color="bg-danger" />
-        <CategoryCard title="Income by source" categories={report.incomeCategories}
+        <CategoryCard currency={currency} title="Income by source" categories={report.incomeCategories}
           totalFils={report.incomeFils} empty="No income this month." color="bg-emerald" />
       </div>
+      <ReportDocuments month={monthKey(ref)} recent={recent} />
     </div>
   );
 }
@@ -90,9 +97,10 @@ function ReportMetric({ label, value, detail, accent = "text-ink" }: {
   );
 }
 
-function CategoryCard({ title, categories, totalFils, empty, color }: {
-  title: string; categories: ReportCategory[]; totalFils: number; empty: string; color: string;
+function CategoryCard({ title, categories, totalFils, empty, color, currency }: {
+  title: string; categories: ReportCategory[]; totalFils: number; empty: string; color: string; currency: string;
 }) {
+  const formatAED = (value: number) => formatLedgerMoney(value, { currency });
   return (
     <Card className="min-w-0 p-5 sm:p-6">
       <h2 className="font-display text-xl text-ink">{title}</h2>

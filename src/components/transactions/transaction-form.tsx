@@ -1,5 +1,8 @@
 "use client";
 
+import { useCurrency } from "@/components/currency-context";
+
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,6 +41,7 @@ export function TransactionForm({
   isOwner: boolean;
   onSuccess: () => void;
 }) {
+  const currency = useCurrency();
   const [accountId, setAccountId] = useState(accounts[0]?.id ?? "");
   const [categoryId, setCategoryId] = useState("");
   const [amountAed, setAmountAed] = useState("");
@@ -96,7 +100,7 @@ export function TransactionForm({
       </span>
 
       <div>
-        <label className="block text-sm text-ink-soft mb-1">Amount (AED)</label>
+        <label className="block text-sm text-ink-soft mb-1">Amount ({currency})</label>
         <Input
           inputMode="decimal"
           placeholder="0.00"

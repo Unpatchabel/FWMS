@@ -1,5 +1,8 @@
 "use client";
 
+import { useCurrency } from "@/components/currency-context";
+
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +11,7 @@ import { ASSET_TYPES, ASSET_TYPE_LABELS, type AssetType } from "@/lib/constants"
 import { createAssetAction } from "@/actions/assets";
 
 export function AssetForm({ onSuccess }: { onSuccess: () => void }) {
+  const currency = useCurrency();
   const [name, setName] = useState("");
   const [type, setType] = useState<AssetType>("REAL_ESTATE");
   const [purchaseValueAed, setPurchaseValueAed] = useState("");
@@ -74,7 +78,7 @@ export function AssetForm({ onSuccess }: { onSuccess: () => void }) {
       </div>
 
       <div>
-        <label className="block text-sm text-ink-soft mb-1">Purchase value (AED)</label>
+        <label className="block text-sm text-ink-soft mb-1">Purchase value ({currency})</label>
         <Input
           inputMode="decimal"
           placeholder="0.00"

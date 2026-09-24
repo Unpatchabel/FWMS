@@ -1,6 +1,8 @@
+"use client";
+
 import { Landmark } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { formatAED } from "@/lib/money";
+import { useMoney } from "@/components/currency-context";
 import type { LoanWithBalance } from "@/services/loans.service";
 import { RecordPaymentButton } from "./record-payment-button";
 import type { AccountOption } from "@/components/transactions/transaction-form";
@@ -14,6 +16,7 @@ export function LoansTable({
   accounts: AccountOption[];
   canWrite: boolean;
 }) {
+  const { format: formatAED } = useMoney();
   if (loans.length === 0) {
     return (
       <Card className="p-10 text-center">

@@ -66,9 +66,11 @@ export async function createAccount(
       : 0;
 
   const account = await prisma.$transaction(async (tx) => {
+    const household = await tx.household.findUniqueOrThrow({ where: { id: householdId }, select: { currency: true } });
     const created = await tx.account.create({
       data: {
         householdId,
+        currency: household.currency,
         name: input.name,
         type: input.type,
         institution: input.institution || null,

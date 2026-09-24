@@ -1,7 +1,9 @@
+"use client";
+
 import { Building2, MapPin, Car, TrendingUp, Boxes } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { formatAED } from "@/lib/money";
+import { useMoney } from "@/components/currency-context";
 import { ASSET_TYPE_LABELS, type AssetType } from "@/lib/constants";
 import type { AssetWithValue } from "@/services/assets.service";
 import { RecordValuationButton } from "./record-valuation-button";
@@ -18,6 +20,7 @@ const TYPE_ICON: Record<AssetType, LucideIcon> = {
 };
 
 export function AssetsTable({ assets, canWrite }: { assets: AssetWithValue[]; canWrite: boolean }) {
+  const { format: formatAED } = useMoney();
   if (assets.length === 0) {
     return (
       <Card className="p-10 text-center">

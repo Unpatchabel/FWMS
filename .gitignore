@@ -19,6 +19,7 @@
 *.db-shm
 /prisma/*.db
 /prisma/*.db-journal
+/recent-docs/
 
 # misc
 .DS_Store

@@ -1,4 +1,6 @@
-import { formatAED, formatAEDCompact } from "@/lib/money";
+"use client";
+
+import { useMoney } from "@/components/currency-context";
 
 /**
  * The dashboard's signature element: combined family net worth, set in the
@@ -16,6 +18,7 @@ export function NetWorthHero({
   assetsFils: number;
   liabilitiesFils: number;
 }) {
+  const { currency, format: formatAED, compact: formatAEDCompact } = useMoney();
   return (
     <section className="relative min-w-0 overflow-hidden rounded-card border border-beige-border bg-surface px-5 py-6 shadow-card sm:px-8 sm:py-8">
       <p className="text-sm uppercase tracking-widest text-ink-soft">
@@ -23,7 +26,7 @@ export function NetWorthHero({
       </p>
 
       <p className="tabular mt-2 font-display text-ink">
-        <span className="block text-sm font-sans font-medium text-ink-soft sm:inline sm:font-display sm:text-hero sm:text-ink">AED </span>
+        <span className="block text-sm font-sans font-medium text-ink-soft sm:inline sm:font-display sm:text-hero sm:text-ink">{currency} </span>
         <span className="block text-[clamp(1.75rem,7vw,3.25rem)] leading-tight tracking-tight sm:inline sm:text-hero">
           {formatAED(netWorthFils, { withSymbol: false })}
         </span>
@@ -69,6 +72,7 @@ function Breakdown({
   value: number;
   accent: string;
 }) {
+  const { format: formatAED, compact: formatAEDCompact } = useMoney();
   return (
     <div className="min-w-0">
       <p className="text-xs uppercase tracking-wide text-silver-muted">

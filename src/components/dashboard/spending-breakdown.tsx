@@ -1,5 +1,7 @@
+"use client";
+
 import { Card } from "@/components/ui/card";
-import { formatAED } from "@/lib/money";
+import { useMoney } from "@/components/currency-context";
 import type { SpendingCategory } from "@/services/dashboard-analytics.service";
 
 export function SpendingBreakdown({
@@ -9,6 +11,7 @@ export function SpendingBreakdown({
   categories: SpendingCategory[];
   totalFils: number;
 }) {
+  const { format: formatAED } = useMoney();
   return (
     <Card className="min-w-0 p-5 sm:p-6">
       <h2 className="font-display text-xl text-ink">Where it went</h2>

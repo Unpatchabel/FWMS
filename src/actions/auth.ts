@@ -6,8 +6,25 @@ import { prisma } from "@/lib/prisma";
 import { verifyPassword } from "@/lib/password";
 import { SESSION_COOKIE, createSessionToken, sessionCookieOptions } from "@/lib/session";
 import { loginSchema } from "@/lib/validators";
+import { setupSchema } from "@/lib/validators";
+import { createOwnerInstallation } from "@/services/setup.service";
 import type { UserRole } from "@/lib/constants";
 import type { ActionResult } from "./types";
+
+/** One owner per installation. The fixed household key also closes concurrent setup attempts. */
+export async function setupAction(input: { email: string; password: string; currency: string }): Promise<ActionResult> {
+  const parsed = setupSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input." };
+  try {
+    const owner = await createOwnerInstallation(parsed.data);
+    const token = await createSessionToken({ userId: owner.id, householdId: owner.householdId,
+      role: "OWNER", name: owner.name, sessionVersion: owner.sessionVersion });
+    (await cookies()).set(SESSION_COOKIE, token, sessionCookieOptions());
+  } catch {
+    return { ok: false, error: "Setup could not finish. Check whether this installation already has an owner." };
+  }
+  return { ok: true };
+}
 
 /**
  * Authenticate and set the session cookie. Called directly (not via a native
