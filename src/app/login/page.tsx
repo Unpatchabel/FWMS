@@ -41,7 +41,8 @@ export default async function LoginPage() {
             <p className="font-display text-2xl text-ink-brand">FWMS</p>
             <p className="text-ink-soft text-sm">My Finances</p>
           </div>
-          <h2 className="font-display text-2xl text-ink">Welcome back, Owner</h2>
+          <p className="text-sm text-ink-soft">Welcome back</p>
+          <h2 className="font-display text-3xl text-ink leading-tight">Owner</h2>
           <p className="text-ink-soft text-sm mt-1 mb-6">
             Sign in to your private dashboard.
           </p>
