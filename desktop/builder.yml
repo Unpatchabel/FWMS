@@ -35,6 +35,10 @@ mac:
   target:
     - dmg
   category: public.app-category.finance
+  # A coherent local-test signature; Developer ID signing is needed for release.
+  identity: '-'
+  entitlements: desktop/entitlements.mac.plist
+  entitlementsInherit: desktop/entitlements.mac.plist
 win:
   target:
     - nsis

@@ -19,6 +19,11 @@ Download the `.dmg` or `.exe` from the workflow's artifacts and test it on
 that operating system. The temporary workflow artifacts are not a public
 distribution channel.
 
+Mac test artifacts use an ad-hoc signature and the CI job checks that the
+packaged app's signature is structurally valid. Gatekeeper does not trust
+ad-hoc signatures from downloads, so a Mac tester may still need to approve
+the app in System Settings → Privacy & Security.
+
 Developers can run `npm ci`, `npm run desktop:smoke`, and
 `npm run desktop:package` on a supported build machine. Packaging must run
 on each target OS so Prisma includes that OS's native engines. Node.js is
@@ -28,6 +33,8 @@ only required to *build* the installer; packaged users do not need it.
 
 Before offering installers to nontechnical users, sign Windows builds and
 sign/notarize the macOS builds with the appropriate developer credentials.
+Replace the test-only `mac.identity: '-'` in `desktop/builder.yml` with a
+Developer ID signing configuration before publishing a Mac Release.
 Unsigned macOS downloads can be blocked by Gatekeeper, and unsigned Windows
 builds can trigger SmartScreen. Test the signed `.dmg` and `.exe` on clean
 machines, then attach them to a GitHub Release. The repo clone remains the

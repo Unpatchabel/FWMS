@@ -20,6 +20,13 @@ for (const file of ['server/server.js', 'server/node_modules/next/package.json',
   if (!fs.existsSync(path.join(resources, file))) throw new Error(`Installer is missing ${file}`);
 }
 if (!fs.existsSync(executable)) throw new Error('Installer is missing its app executable.');
+if (isMac) {
+  const signature = spawnSync('codesign', ['--verify', '--deep', '--strict', '--verbose=2', path.join(root, 'FWMS.app')], {
+    stdio: 'inherit', timeout: 30000,
+  });
+  if (signature.error) throw signature.error;
+  if (signature.status !== 0) throw new Error('The packaged Mac app has an invalid signature.');
+}
 const test = spawnSync(process.execPath, [path.join(__dirname, 'smoke.cjs')], {
   env: { ...process.env, FWMS_SMOKE_RESOURCES: resources, FWMS_SMOKE_EXECUTABLE: executable },
   stdio: 'inherit', timeout: 120000,
