@@ -15,9 +15,32 @@ Your records are stored in your computer's application data folder; saved
 reports are in `Documents/FWMS-Recent-Docs`. Keep backups of both. Currency
 conversion needs internet; the ledger, calculator, and reports work offline.
 
-The desktop installer builds are currently **test builds**. macOS and Windows
-may warn about unsigned downloads until signing and macOS notarization are
-configured. Maintainer packaging instructions are in
+### Install a macOS test build
+
+There is no public desktop Release yet. If you are testing a build, open
+**Actions → Build FWMS desktop installers → latest successful run → Artifacts**
+on this repository's GitHub page. Download `fwms-mac-apple-silicon` for an
+M-series Mac or `fwms-mac-intel` for an Intel Mac. Unzip the downloaded
+artifact, open its `.dmg`, and drag **FWMS** into **Applications**. Open FWMS
+and press **Start FWMS** to create your owner account. You do not need a
+terminal or development tools.
+
+These Mac test builds are ad-hoc signed but **not notarized by Apple**.
+macOS may say it cannot verify the app for malware. If you obtained the
+artifact from this repository's successful workflow run and choose to trust
+it, try opening FWMS once, then go to **Apple menu → System Settings →
+Privacy & Security**, scroll down to **Security**, and click **Open Anyway**
+for FWMS. Confirm **Open** and enter your Mac password if requested. Apple
+shows the override for about an hour after the blocked launch. This approves
+only this app; it does not turn off your Mac's security protections globally.
+See [Apple's instructions](https://support.apple.com/guide/mac-help/apple-cant-check-app-for-malicious-software-mchleab3a043/mac).
+
+This warning is a real limitation of the test build: a valid ad-hoc signature
+does not mean Apple has checked the app for malware. Do not use an override
+for a copy from an unfamiliar source. The ordinary download experience will
+require a Developer ID signature and Apple notarization before a public Mac
+Release. Windows test builds may also show a publisher warning until signed.
+Maintainer packaging instructions are in
 [docs/desktop-release.md](docs/desktop-release.md).
 
 > **A private, self-hosted financial dashboard for one owner.**
@@ -68,7 +91,7 @@ and opening balance adjustments do not affect income or spending.
 
 ---
 
-## 🏦 Account Management
+## Account Management
 
 Supports:
 
@@ -242,7 +265,7 @@ The application is designed to run on a trusted local machine or private network
 
 ---
 
-# 🛠️ Technology Stack
+# Technology Stack
 
 | Layer          | Technology            |
 | -------------- | --------------------- |
@@ -453,7 +476,7 @@ tests/
 
 ---
 
-# 💾 Data & Privacy
+# Data & Privacy
 
 FWMS is designed around local ownership.
 
@@ -473,7 +496,7 @@ Backup options:
 
 ---
 
-# 📸 Screenshots
+# Screenshots
 
 *Add screenshots here*
 
@@ -489,7 +512,7 @@ docs/
 
 ---
 
-# 👨‍💻 Philosophy
+# Philosophy
 
 FWMS is built with a simple idea:
 

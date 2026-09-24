@@ -22,7 +22,10 @@ distribution channel.
 Mac test artifacts use an ad-hoc signature and the CI job checks that the
 packaged app's signature is structurally valid. Gatekeeper does not trust
 ad-hoc signatures from downloads, so a Mac tester may still need to approve
-the app in System Settings → Privacy & Security.
+the app in System Settings → Privacy & Security. The exact steps for testers,
+including how to find the correct Apple Silicon or Intel artifact, are in the
+README's [macOS test installation section](../README.md#install-a-macos-test-build).
+Do not tell users to disable Gatekeeper or remove quarantine globally.
 
 Developers can run `npm ci`, `npm run desktop:smoke`, and
 `npm run desktop:package` on a supported build machine. Packaging must run
