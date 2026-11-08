@@ -40,3 +40,4 @@ jobs:
             dist-desktop/*.dmg
             dist-desktop/*.exe
           if-no-files-found: error
+          retention-days: 3
