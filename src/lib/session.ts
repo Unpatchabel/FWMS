@@ -27,7 +27,7 @@ export interface SessionPayload {
 
 function getSecret(): Uint8Array {
   const secret = process.env.AUTH_SECRET;
-  if (!secret || secret.length < 16) {
+  if (!secret || secret.length < 32 || secret.startsWith("replace-me")) {
     throw new Error(
       "AUTH_SECRET is missing or too short. Set a long random value in .env"
     );
@@ -36,7 +36,11 @@ function getSecret(): Uint8Array {
 }
 
 export function sessionMaxAgeSeconds(): number {
-  return Number(process.env.SESSION_MAX_AGE ?? 60 * 60 * 24 * 7);
+  const value = Number(process.env.SESSION_MAX_AGE ?? 604800);
+  if (!Number.isSafeInteger(value) || value < 60 || value > 2592000) {
+    throw new Error("SESSION_MAX_AGE must be an integer between 60 and 2592000 seconds.");
+  }
+  return value;
 }
 
 /** Cookie attributes used for both setting and clearing the session cookie. */
@@ -66,7 +70,11 @@ export async function verifySessionToken(
   token: string
 ): Promise<SessionPayload | null> {
   try {
-    const { payload } = await jwtVerify(token, getSecret());
+    const { payload } = await jwtVerify(token, getSecret(), { algorithms: ["HS256"], requiredClaims: ["iat", "exp"] });
+    if (typeof payload.userId !== "string" || !payload.userId ||
+        typeof payload.householdId !== "string" || !payload.householdId ||
+        payload.role !== "OWNER" || typeof payload.name !== "string" ||
+        !Number.isSafeInteger(payload.sessionVersion) || Number(payload.sessionVersion) < 0) return null;
     return payload as SessionPayload;
   } catch {
     return null;

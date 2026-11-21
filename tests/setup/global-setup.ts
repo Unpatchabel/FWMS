@@ -1,5 +1,5 @@
 import { execSync } from "node:child_process";
-import { existsSync, rmSync } from "node:fs";
+import { existsSync, rmSync, writeFileSync } from "node:fs";
 import { TEST_DATABASE_URL, TEST_DATABASE_PATH } from "./test-db-url";
 
 /**
@@ -15,7 +15,8 @@ export default async function globalSetup() {
     if (existsSync(path)) rmSync(path);
   }
 
-  execSync("npx prisma db push --skip-generate --accept-data-loss", {
+  writeFileSync(TEST_DATABASE_PATH, "", { mode: 0o600 });
+  execSync("npx prisma migrate deploy", {
     env: { ...process.env, DATABASE_URL: TEST_DATABASE_URL },
     stdio: "inherit",
   });

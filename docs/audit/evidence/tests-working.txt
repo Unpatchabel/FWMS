@@ -1,0 +1,48 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> fwms@0.1.0 test
+> vitest run
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+  - ESM syntax in a file loaded as CommonJS (tests/setup/test-db-url.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v4.1.12 /workspace/scratch/7c8fb312d368/FWMS-main
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": SQLite database "test.db" at "file:/workspace/scratch/7c8fb312d368/FWMS-main/prisma/test.db"
+
+Error: Schema engine error:
+
+No test files found, exiting with code 1
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Command failed: npx prisma migrate deploy
+ ❯ genericNodeError node:internal/errors:986:15
+ ❯ wrappedFn node:internal/errors:540:14
+ ❯ checkExecSyncError node:child_process:943:11
+ ❯ execSync node:child_process:1015:15
+ ❯ Object.globalSetup [as setup] tests/setup/global-setup.ts:18:3
+     16|   }
+     17|
+     18|   execSync("npx prisma migrate deploy", {
+       |   ^
+     19|     env: { ...process.env, DATABASE_URL: TEST_DATABASE_URL },
+     20|     stdio: "inherit",
+ ❯ TestProject._initializeGlobalSetup node_modules/vitest/dist/chunks/cli-api.B0Pz1_R7.js:10813:50
+ ❯ Vitest.initializeGlobalSetup node_modules/vitest/dist/chunks/cli-api.B0Pz1_R7.js:13812:35
+ ❯ node_modules/vitest/dist/chunks/cli-api.B0Pz1_R7.js:13655:6
+ ❯ node_modules/vitest/dist/chunks/cli-api.B0Pz1_R7.js:13684:11
+ ❯ node_modules/vitest/dist/chunks/cli-api.B0Pz1_R7.js:13546:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { status: 1, signal: null, output: [ null, null, null ], pid: 53, stdout: null, stderr: null }
+
+
+

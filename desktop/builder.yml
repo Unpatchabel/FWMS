@@ -6,6 +6,7 @@ files:
   - desktop/main.cjs
   - desktop/preload.cjs
   - desktop/bootstrap.cjs
+  - desktop/security.cjs
   - desktop/launcher.html
   - desktop/launcher.js
   - desktop/launcher.css
@@ -16,10 +17,18 @@ extraResources:
     to: server
     filter:
       - '**/*'
+      - '!.env'
+      - '!.env.*'
+      - '!**/*.db'
+      - '!**/*.db-*'
   - from: .next/standalone/node_modules
     to: server/node_modules
     filter:
       - '**/*'
+      - '!.env'
+      - '!.env.*'
+      - '!**/*.db'
+      - '!**/*.db-*'
   - from: .next/static
     to: server/.next/static
   - from: prisma

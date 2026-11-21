@@ -3,13 +3,14 @@
 import { useCurrency } from "@/components/currency-context";
 
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createLoanAction } from "@/actions/loans";
 
 export function LoanForm({ onSuccess }: { onSuccess: () => void }) {
   const currency = useCurrency();
+  const formId = useId();
   const [name, setName] = useState("");
   const [lender, setLender] = useState("");
   const [originalAmountAed, setOriginalAmountAed] = useState("");
@@ -49,8 +50,8 @@ export function LoanForm({ onSuccess }: { onSuccess: () => void }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm text-ink-soft mb-1">Loan name</label>
-        <Input
+        <label htmlFor={`${formId}-0`} className="block text-sm text-ink-soft mb-1">Loan name</label>
+        <Input id={`${formId}-0`}
           placeholder="e.g. Home Mortgage"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -59,15 +60,15 @@ export function LoanForm({ onSuccess }: { onSuccess: () => void }) {
       </div>
 
       <div>
-        <label className="block text-sm text-ink-soft mb-1">
+        <label htmlFor={`${formId}-1`} className="block text-sm text-ink-soft mb-1">
           Lender <span className="text-silver-muted">(optional)</span>
         </label>
-        <Input placeholder="e.g. Emirates NBD" value={lender} onChange={(e) => setLender(e.target.value)} />
+        <Input id={`${formId}-1`} placeholder="e.g. Emirates NBD" value={lender} onChange={(e) => setLender(e.target.value)} />
       </div>
 
       <div>
-        <label className="block text-sm text-ink-soft mb-1">Original loan amount ({currency})</label>
-        <Input
+        <label htmlFor={`${formId}-2`} className="block text-sm text-ink-soft mb-1">Original loan amount ({currency})</label>
+        <Input id={`${formId}-2`}
           inputMode="decimal"
           placeholder="0.00"
           value={originalAmountAed}
@@ -77,8 +78,8 @@ export function LoanForm({ onSuccess }: { onSuccess: () => void }) {
       </div>
 
       <div>
-        <label className="block text-sm text-ink-soft mb-1">Balance remaining today ({currency})</label>
-        <Input
+        <label htmlFor={`${formId}-3`} className="block text-sm text-ink-soft mb-1">Balance remaining today ({currency})</label>
+        <Input id={`${formId}-3`}
           inputMode="decimal"
           placeholder="0.00"
           value={openingBalanceAed}
@@ -91,10 +92,10 @@ export function LoanForm({ onSuccess }: { onSuccess: () => void }) {
       </div>
 
       <div>
-        <label className="block text-sm text-ink-soft mb-1">
+        <label htmlFor={`${formId}-4`} className="block text-sm text-ink-soft mb-1">
           Monthly payment ({currency}) <span className="text-silver-muted">(optional)</span>
         </label>
-        <Input
+        <Input id={`${formId}-4`}
           inputMode="decimal"
           placeholder="0.00"
           value={monthlyPaymentAed}
@@ -103,10 +104,10 @@ export function LoanForm({ onSuccess }: { onSuccess: () => void }) {
       </div>
 
       <div>
-        <label className="block text-sm text-ink-soft mb-1">
+        <label htmlFor={`${formId}-5`} className="block text-sm text-ink-soft mb-1">
           Interest rate % <span className="text-silver-muted">(optional)</span>
         </label>
-        <Input
+        <Input id={`${formId}-5`}
           inputMode="decimal"
           placeholder="e.g. 4.2"
           value={interestRatePct}
@@ -115,14 +116,14 @@ export function LoanForm({ onSuccess }: { onSuccess: () => void }) {
       </div>
 
       <div>
-        <label className="block text-sm text-ink-soft mb-1">
+        <label htmlFor={`${formId}-6`} className="block text-sm text-ink-soft mb-1">
           Start date <span className="text-silver-muted">(optional)</span>
         </label>
-        <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+        <Input id={`${formId}-6`} type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
       </div>
 
       {error && (
-        <p className="text-sm text-danger bg-danger-soft rounded-lg px-3 py-2">{error}</p>
+        <p role="alert" className="text-sm text-danger bg-danger-soft rounded-lg px-3 py-2">{error}</p>
       )}
 
       <Button type="submit" disabled={saving || !name.trim()} className="w-full">

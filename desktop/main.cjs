@@ -3,6 +3,7 @@ const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 const fs = require('node:fs/promises');
 const { spawn } = require('node:child_process');
+const { isTrustedIpc } = require('./security.cjs');
 const { databaseUrl, initializeFiles, migrate, freePort, waitForServer } = require('./bootstrap.cjs');
 
 let window;
@@ -24,6 +25,7 @@ function createWindow() {
     },
   });
   window.loadFile(path.join(__dirname, 'launcher.html'));
+  window.webContents.on('will-attach-webview', event => event.preventDefault());
   window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   window.webContents.on('will-navigate', (event, url) => {
     if (!appOrigin && url === pathToFileURL(path.join(__dirname, 'launcher.html')).href) return;
@@ -84,14 +86,19 @@ async function start() {
 
 app.whenReady().then(() => {
   app.setName('FWMS');
-  // Never expose the local web server on the network. Only this app's window
-  // loads it; the ledger itself lives under the current OS user's data path.
+  // Bind to loopback. Other local processes can reach the authenticated server;
+  // the ledger itself lives under the current OS user's data path.
+  session.defaultSession.setPermissionCheckHandler(() => false);
   session.defaultSession.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));
-  ipcMain.handle('fwms:start', async () => {
+  ipcMain.handle('fwms:start', async event => {
+    if (!isTrustedIpc(event, window, appOrigin, pathToFileURL(path.join(__dirname, 'launcher.html')).href)) return { ok: false, error: 'Unauthorized sender.' };
     try { return { ok: await start() }; }
     catch (error) { return { ok: false, error: error instanceof Error ? error.message : 'Could not start FWMS.' }; }
   });
-  ipcMain.handle('fwms:documents', async () => shell.openPath(path.join(app.getPath('documents'), 'FWMS-Recent-Docs')));
+  ipcMain.handle('fwms:documents', async event => {
+    if (!isTrustedIpc(event, window, appOrigin, pathToFileURL(path.join(__dirname, 'launcher.html')).href)) return 'Unauthorized sender.';
+    return shell.openPath(path.join(app.getPath('documents'), 'FWMS-Recent-Docs'));
+  });
   createWindow();
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {

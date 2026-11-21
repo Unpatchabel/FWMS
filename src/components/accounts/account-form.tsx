@@ -3,7 +3,7 @@
 import { useCurrency } from "@/components/currency-context";
 
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -12,6 +12,7 @@ import { createAccountAction } from "@/actions/accounts";
 
 export function AccountForm({ onSuccess }: { onSuccess: () => void }) {
   const currency = useCurrency();
+  const formId = useId();
   const [name, setName] = useState("");
   const [type, setType] = useState<AccountType>("CHECKING");
   const [institution, setInstitution] = useState("");
@@ -40,8 +41,8 @@ export function AccountForm({ onSuccess }: { onSuccess: () => void }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm text-ink-soft mb-1">Account name</label>
-        <Input
+        <label htmlFor={`${formId}-0`} className="block text-sm text-ink-soft mb-1">Account name</label>
+        <Input id={`${formId}-0`}
           placeholder="e.g. Emirates NBD Checking"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -50,8 +51,8 @@ export function AccountForm({ onSuccess }: { onSuccess: () => void }) {
       </div>
 
       <div>
-        <label className="block text-sm text-ink-soft mb-1">Type</label>
-        <Select value={type} onChange={(e) => setType(e.target.value as AccountType)}>
+        <label htmlFor={`${formId}-1`} className="block text-sm text-ink-soft mb-1">Type</label>
+        <Select id={`${formId}-1`} value={type} onChange={(e) => setType(e.target.value as AccountType)}>
           {ACCOUNT_TYPES.map((t) => (
             <option key={t} value={t}>
               {ACCOUNT_TYPE_LABELS[t]}
@@ -61,10 +62,10 @@ export function AccountForm({ onSuccess }: { onSuccess: () => void }) {
       </div>
 
       <div>
-        <label className="block text-sm text-ink-soft mb-1">
+        <label htmlFor={`${formId}-2`} className="block text-sm text-ink-soft mb-1">
           Institution <span className="text-silver-muted">(optional)</span>
         </label>
-        <Input
+        <Input id={`${formId}-2`}
           placeholder="e.g. Emirates NBD"
           value={institution}
           onChange={(e) => setInstitution(e.target.value)}
@@ -72,10 +73,10 @@ export function AccountForm({ onSuccess }: { onSuccess: () => void }) {
       </div>
 
       <div>
-        <label className="block text-sm text-ink-soft mb-1">
+        <label htmlFor={`${formId}-3`} className="block text-sm text-ink-soft mb-1">
           Opening balance ({currency}) <span className="text-silver-muted">(optional)</span>
         </label>
-        <Input
+        <Input id={`${formId}-3`}
           inputMode="decimal"
           placeholder="0.00"
           value={openingBalanceAed}
@@ -87,7 +88,7 @@ export function AccountForm({ onSuccess }: { onSuccess: () => void }) {
       </div>
 
       {error && (
-        <p className="text-sm text-danger bg-danger-soft rounded-lg px-3 py-2">{error}</p>
+        <p role="alert" className="text-sm text-danger bg-danger-soft rounded-lg px-3 py-2">{error}</p>
       )}
 
       <Button type="submit" disabled={saving || !name.trim()} className="w-full">

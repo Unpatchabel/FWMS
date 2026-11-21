@@ -1,0 +1,14 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> fwms@0.1.0 lint
+> eslint src tests --max-warnings=0
+
+
+/workspace/scratch/7c8fb312d368/FWMS-main/src/components/dashboard/net-worth-hero.tsx
+  21:49  warning  'formatAEDCompact' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/7c8fb312d368/FWMS-main/src/services/document.service.ts
+  74:28  error  'offsets' is never reassigned. Use 'const' instead  prefer-const
+
+✖ 2 problems (1 error, 1 warning)
+

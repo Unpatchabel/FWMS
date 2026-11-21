@@ -71,7 +71,8 @@ function toPdf(lines: string[]): Buffer {
   }
   objects[0] = "<< /Type /Catalog /Pages 2 0 R >>";
   objects[1] = `<< /Type /Pages /Count ${pages.length} /Kids [${pageRefs.join(" ")}] >>`;
-  let data = "%PDF-1.4\n", offsets = [0];
+  let data = "%PDF-1.4\n";
+  const offsets = [0];
   objects.forEach((obj, idx) => { offsets.push(Buffer.byteLength(data, "latin1")); data += `${idx + 1} 0 obj\n${obj}\nendobj\n`; });
   const xref = Buffer.byteLength(data, "latin1");
   data += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;

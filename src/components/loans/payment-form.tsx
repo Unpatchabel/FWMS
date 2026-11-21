@@ -3,7 +3,8 @@
 import { useCurrency } from "@/components/currency-context";
 
 
-import { useState } from "react";
+import { aedToFils } from "@/lib/money";
+import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -28,6 +29,7 @@ export function PaymentForm({
   onSuccess: () => void;
 }) {
   const currency = useCurrency();
+  const formId = useId();
   const [accountId, setAccountId] = useState(accounts[0]?.id ?? "");
   const [amountAed, setAmountAed] = useState("");
   const [interestAed, setInterestAed] = useState("");
@@ -36,12 +38,11 @@ export function PaymentForm({
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  const amountNum = Number(amountAed || 0);
-  const interestNum = Number(interestAed || 0);
-  const principalPreview =
-    amountAed && interestAed && Number.isFinite(amountNum) && Number.isFinite(interestNum)
-      ? amountNum - interestNum
-      : null;
+  let principalPreview: number | null = null;
+  try {
+    if (amountAed && interestAed) principalPreview = (aedToFils(amountAed) - aedToFils(interestAed)) / 100;
+  } catch { /* Server displays the precise validation error on submission. */ }
+
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -87,8 +88,8 @@ export function PaymentForm({
       </p>
 
       <div>
-        <label className="block text-sm text-ink-soft mb-1">Paid from</label>
-        <Select value={accountId} onChange={(e) => setAccountId(e.target.value)} required>
+        <label htmlFor={`${formId}-0`} className="block text-sm text-ink-soft mb-1">Paid from</label>
+        <Select id={`${formId}-0`} value={accountId} onChange={(e) => setAccountId(e.target.value)} required>
           {accounts.map((a) => (
             <option key={a.id} value={a.id}>
               {a.name}
@@ -98,8 +99,8 @@ export function PaymentForm({
       </div>
 
       <div>
-        <label className="block text-sm text-ink-soft mb-1">Total payment ({currency})</label>
-        <Input
+        <label htmlFor={`${formId}-1`} className="block text-sm text-ink-soft mb-1">Total payment ({currency})</label>
+        <Input id={`${formId}-1`}
           inputMode="decimal"
           placeholder="0.00"
           value={amountAed}
@@ -109,10 +110,10 @@ export function PaymentForm({
       </div>
 
       <div>
-        <label className="block text-sm text-ink-soft mb-1">
+        <label htmlFor={`${formId}-2`} className="block text-sm text-ink-soft mb-1">
           Portion to interest ({currency}) <span className="text-silver-muted">(0 if none)</span>
         </label>
-        <Input
+        <Input id={`${formId}-2`}
           inputMode="decimal"
           placeholder="0.00"
           value={interestAed}
@@ -129,8 +130,8 @@ export function PaymentForm({
       </div>
 
       <div>
-        <label className="block text-sm text-ink-soft mb-1">Payment date</label>
-        <Input
+        <label htmlFor={`${formId}-3`} className="block text-sm text-ink-soft mb-1">Payment date</label>
+        <Input id={`${formId}-3`}
           type="date"
           value={paymentDate}
           onChange={(e) => setPaymentDate(e.target.value)}
@@ -139,10 +140,10 @@ export function PaymentForm({
       </div>
 
       <div>
-        <label className="block text-sm text-ink-soft mb-1">
+        <label htmlFor={`${formId}-4`} className="block text-sm text-ink-soft mb-1">
           Note <span className="text-silver-muted">(optional)</span>
         </label>
-        <Input
+        <Input id={`${formId}-4`}
           placeholder="e.g. Monthly instalment"
           value={note}
           onChange={(e) => setNote(e.target.value)}
@@ -151,7 +152,7 @@ export function PaymentForm({
       </div>
 
       {error && (
-        <p className="text-sm text-danger bg-danger-soft rounded-lg px-3 py-2">{error}</p>
+        <p role="alert" className="text-sm text-danger bg-danger-soft rounded-lg px-3 py-2">{error}</p>
       )}
 
       <Button type="submit" disabled={saving || !amountAed.trim()} className="w-full">

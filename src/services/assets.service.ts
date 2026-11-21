@@ -1,3 +1,5 @@
+import type { Prisma } from "@prisma/client";
+import { assetCreateSchema, assetValuationCreateSchema } from "@/lib/validators";
 import { prisma } from "@/lib/prisma";
 import { aedToFils } from "@/lib/money";
 import { logAudit } from "@/lib/audit";
@@ -28,12 +30,12 @@ export interface AssetWithValue {
  * falling back to the original purchase price if no valuation has been
  * recorded yet, so appreciation/depreciation stays chartable over time.
  */
-export async function listAssets(householdId: string): Promise<AssetWithValue[]> {
-  const assets = await prisma.asset.findMany({
+export async function listAssets(householdId: string, db: Prisma.TransactionClient = prisma): Promise<AssetWithValue[]> {
+  const assets = await db.asset.findMany({
     where: { householdId, isActive: true },
     orderBy: { createdAt: "asc" },
     include: {
-      valuations: { orderBy: { valuationDate: "desc" }, take: 1 },
+      valuations: { orderBy: [{ valuationDate: "desc" }, { createdAt: "desc" }, { id: "desc" }], take: 1 },
     },
   });
 
@@ -59,6 +61,7 @@ export async function createAsset(
   userId: string,
   input: AssetCreateInput
 ) {
+  input = assetCreateSchema.parse(input);
   const purchaseValueFils = aedToFils(input.purchaseValueAed);
 
   return prisma.$transaction(async (tx) => {
@@ -101,6 +104,7 @@ export async function recordAssetValuation(
   userId: string,
   input: AssetValuationCreateInput
 ) {
+  input = assetValuationCreateSchema.parse(input);
   const asset = await prisma.asset.findFirst({
     where: { id: input.assetId, householdId, isActive: true },
   });

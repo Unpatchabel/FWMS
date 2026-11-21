@@ -19,6 +19,7 @@ export async function middleware(request: NextRequest) {
 
   // Unauthenticated users can only reach the login page.
   if (!session && !isAuthPage) {
+    if (pathname.startsWith("/api/")) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
@@ -26,7 +27,7 @@ export async function middleware(request: NextRequest) {
 }
 
 // Apply to all routes except Next internals and static files. (There is no
-// /api tree to exempt anymore — every mutation is a Server Action, which
+// API GET handlers check database-backed authorization; mutations are Server Actions, which
 // posts to the page's own route and is protected by the same guard below.)
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],

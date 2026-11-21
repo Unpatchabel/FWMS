@@ -1,0 +1,2 @@
+Package private-file inventory: PASS
+No environment files, SQLite files/sidecars or auth.secret found in unpacked resources.

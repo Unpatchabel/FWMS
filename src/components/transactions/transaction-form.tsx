@@ -3,7 +3,7 @@
 import { useCurrency } from "@/components/currency-context";
 
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -42,6 +42,7 @@ export function TransactionForm({
   onSuccess: () => void;
 }) {
   const currency = useCurrency();
+  const formId = useId();
   const [accountId, setAccountId] = useState(accounts[0]?.id ?? "");
   const [categoryId, setCategoryId] = useState("");
   const [amountAed, setAmountAed] = useState("");
@@ -100,8 +101,8 @@ export function TransactionForm({
       </span>
 
       <div>
-        <label className="block text-sm text-ink-soft mb-1">Amount ({currency})</label>
-        <Input
+        <label htmlFor={`${formId}-0`} className="block text-sm text-ink-soft mb-1">Amount ({currency})</label>
+        <Input id={`${formId}-0`}
           inputMode="decimal"
           placeholder="0.00"
           value={amountAed}
@@ -111,8 +112,8 @@ export function TransactionForm({
       </div>
 
       <div>
-        <label className="block text-sm text-ink-soft mb-1">Account</label>
-        <Select value={accountId} onChange={(e) => setAccountId(e.target.value)} required>
+        <label htmlFor={`${formId}-1`} className="block text-sm text-ink-soft mb-1">Account</label>
+        <Select id={`${formId}-1`} value={accountId} onChange={(e) => setAccountId(e.target.value)} required>
           {accounts.map((a) => (
             <option key={a.id} value={a.id}>
               {a.name}
@@ -130,15 +131,15 @@ export function TransactionForm({
       />
 
       <div>
-        <label className="block text-sm text-ink-soft mb-1">Date</label>
-        <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
+        <label htmlFor={`${formId}-2`} className="block text-sm text-ink-soft mb-1">Date</label>
+        <Input id={`${formId}-2`} type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
       </div>
 
       <div>
-        <label className="block text-sm text-ink-soft mb-1">
+        <label htmlFor={`${formId}-3`} className="block text-sm text-ink-soft mb-1">
           Description <span className="text-silver-muted">(optional)</span>
         </label>
-        <Input
+        <Input id={`${formId}-3`}
           placeholder={type === "INCOME" ? "e.g. Monthly salary" : "e.g. Groceries"}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
@@ -147,7 +148,7 @@ export function TransactionForm({
       </div>
 
       {error && (
-        <p className="text-sm text-danger bg-danger-soft rounded-lg px-3 py-2">{error}</p>
+        <p role="alert" className="text-sm text-danger bg-danger-soft rounded-lg px-3 py-2">{error}</p>
       )}
 
       <Button type="submit" disabled={saving} className="w-full">

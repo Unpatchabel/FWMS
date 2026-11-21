@@ -1,0 +1,3 @@
+ASAR private-file inventory: PASS
+Entries: 9
+No environment files, SQLite files/sidecars or auth.secret found inside app.asar.

@@ -9,7 +9,7 @@
 export const FILS_PER_AED = 100;
 
 /** Defensive ceiling against fat-finger entry and float-precision issues at extreme magnitudes. */
-export const MAX_ABS_AED = 1_000_000_000; // AED 1 billion
+export const MAX_ABS_AED = 21_474_836.47; // Prisma signed Int limit: 2,147,483,647 hundredths
 
 /**
  * Parse a user-entered AED string/number into integer fils.
@@ -20,6 +20,9 @@ export const MAX_ABS_AED = 1_000_000_000; // AED 1 billion
  */
 export function aedToFils(input: string | number): number {
   const raw = typeof input === "number" ? input.toString() : input.trim();
+  if (raw.includes(",") && !/^-?\d{1,3}(,\d{3})+(\.\d{1,2})?$/.test(raw)) {
+    throw new Error("Use valid thousands grouping, e.g. 1,250.50.");
+  }
   const cleaned = raw.replace(/,/g, "");
   if (!/^-?\d+(\.\d{1,2})?$/.test(cleaned)) {
     throw new Error(
@@ -34,7 +37,10 @@ export function aedToFils(input: string | number): number {
     throw new Error(`Amount is too large (max ${MAX_ABS_AED.toLocaleString()} ledger units).`);
   }
   // Round via cents to avoid float drift (e.g. 12.34 * 100 = 1233.9999...).
-  return Math.round(value * FILS_PER_AED);
+  const negative = cleaned.startsWith("-");
+  const [whole, fraction = ""] = cleaned.replace(/^-/, "").split(".");
+  const units = Number(whole) * 100 + Number(fraction.padEnd(2, "0"));
+  return negative && units !== 0 ? -units : units;
 }
 
 /** Convert integer fils to a Number of AED (for charts only, never for storage). */

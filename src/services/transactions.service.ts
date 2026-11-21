@@ -1,3 +1,4 @@
+import { transactionCreateSchema, transferCreateSchema } from "@/lib/validators";
 import { prisma } from "@/lib/prisma";
 import { aedToFils } from "@/lib/money";
 import { logAudit } from "@/lib/audit";
@@ -130,18 +131,12 @@ export async function createTransaction(
   userId: string,
   input: TransactionCreateInput
 ) {
-  const { category } = await validateAccountAndCategory(
-    prisma,
-    householdId,
-    input.accountId,
-    input.categoryId,
-    input.type
-  );
-
+  input = transactionCreateSchema.parse(input);
   const magnitude = aedToFils(input.amountAed);
   const amount = signedTransactionAmount(input.type, magnitude);
 
   return prisma.$transaction(async (tx) => {
+    const { category } = await validateAccountAndCategory(tx, householdId, input.accountId, input.categoryId, input.type);
     const created = await insertTransactionRow(tx, {
       householdId,
       accountId: input.accountId,
@@ -177,6 +172,9 @@ export async function createTransfer(
   userId: string,
   input: TransferCreateInput
 ) {
+  const parsed = transferCreateSchema.safeParse(input);
+  if (!parsed.success) throw new TransactionValidationError(parsed.error.issues[0]?.message ?? "Invalid transfer.");
+  input = parsed.data;
   if (input.fromAccountId === input.toAccountId) {
     throw new TransactionValidationError("Choose two different accounts.");
   }
@@ -392,10 +390,11 @@ export async function voidTransaction(
   }
 
   await prisma.$transaction(async (tx) => {
-    await tx.transaction.update({
-      where: { id: transactionId },
+    const changed = await tx.transaction.updateMany({
+      where: { id: transactionId, householdId, status: "ACTIVE" },
       data: { status: "VOID" },
     });
+    if (changed.count !== 1) throw new TransactionValidationError("This entry has already been removed.");
 
     await logAudit(
       {

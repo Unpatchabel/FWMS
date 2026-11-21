@@ -1,0 +1,16 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> fwms@0.1.0 test:http
+> node scripts/http-smoke.cjs
+
+PASS unauthenticated backup returns 401
+PASS cross-origin Server Action is rejected
+PASS fresh owner setup sets session cookie
+PASS authenticated dashboard renders
+PASS repeated setup is refused
+PASS authenticated account action succeeds
+PASS private no-store export reconciles opening balance and omits hashes
+PASS authenticated DOCX generation/download
+PASS logged-out token cannot replay against backup
+PASS invalid password denied
+PASS owner can sign in again and records are preserved

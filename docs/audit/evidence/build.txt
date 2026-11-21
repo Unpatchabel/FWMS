@@ -1,0 +1,46 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> fwms@0.1.0 build
+> next build
+
+   ▲ Next.js 15.5.29
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 5.1s
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/5) ...
+   Generating static pages (1/5) 
+   Generating static pages (2/5) 
+   Generating static pages (3/5) 
+ ✓ Generating static pages (5/5)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+┌ ○ /                                      131 B         103 kB
+├ ○ /_not-found                            996 B         104 kB
+├ ƒ /accounts                            5.65 kB         122 kB
+├ ƒ /api/backup                            131 B         103 kB
+├ ƒ /api/documents/[filename]              131 B         103 kB
+├ ƒ /assets                              6.14 kB         116 kB
+├ ƒ /dashboard                           2.39 kB         122 kB
+├ ƒ /expenses                            2.04 kB         122 kB
+├ ƒ /income                              2.04 kB         122 kB
+├ ƒ /loans                                5.7 kB         115 kB
+├ ƒ /login                               1.36 kB         111 kB
+├ ƒ /reports                              1.5 kB         114 kB
+├ ƒ /settings                            3.17 kB         113 kB
+├ ƒ /setup                               1.56 kB         111 kB
+└ ƒ /tools                               3.03 kB         113 kB
++ First Load JS shared by all             103 kB
+  ├ chunks/255-73938ce8a8eac1ad.js       46.6 kB
+  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB
+  └ other shared chunks (total)          1.93 kB
+
+
+ƒ Middleware                             39.5 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

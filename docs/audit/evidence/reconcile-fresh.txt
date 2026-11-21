@@ -1,0 +1,13 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> fwms@0.1.0 db:check
+> node --import tsx scripts/check-ledger.ts
+
+PASS: Transaction amount outside Prisma Int or wrong sign/status/type: 0
+PASS: Transaction household/account/category/author mismatch: 0
+PASS: Unbalanced or malformed transfer groups: 0
+PASS: Invalid loan payment split or range: 0
+PASS: Overpaid or out-of-range loan: 0
+PASS: Invalid linked loan transaction: 0
+PASS: Legacy payments without a cash transaction (manual reconciliation required): 0
+PASS: Out-of-range asset or valuation: 0

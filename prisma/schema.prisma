@@ -9,15 +9,15 @@
 //     always SUM(amount) of its transactions — never a stored, editable field.
 //  3. History is preserved, not overwritten: AssetValuation and LoanPayment
 //     keep the full trail so current values are derived and auditable.
-//  4. Everything hangs off a Household so family members share data.
+//  4. Household scopes every record; current authentication permits one owner.
 //  5. AuditLog records who did what — cheap now, painful to retrofit later.
 //
 // NOTE ON "ENUMS": SQLite has no native ENUM type, and Prisma therefore does
 // not support `enum` on the sqlite provider. Fields that are conceptually
 // enums (role, account type, category type, transaction type, asset type) are
 // stored as String. Their allowed values live in src/lib/constants.ts and are
-// enforced by Zod validators on every write, so integrity is guaranteed at the
-// application boundary. Switching to Postgres later can promote these back to
+// enforced by Zod at action/service boundaries. Additive SQLite triggers also
+// guard key ledger invariants; see migration 20261121000100_ledger_integrity. Switching to Postgres later can promote these back to
 // real DB enums with a single migration.
 // ============================================================================
 

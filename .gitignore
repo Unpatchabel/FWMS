@@ -10,8 +10,15 @@
 /dist-desktop/
 
 # env & secrets
-.env
-.env*.local
+.env*
+!.env.example
+*.secret
+*.sqlite
+*.sqlite3
+*.sqlite-*
+*.sqlite3-*
+/fwms-backup-*.json
+/.desktop-resources/
 
 # database (contains real family financial data — never commit)
 *.db

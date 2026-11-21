@@ -1,3 +1,5 @@
+import type { Prisma } from "@prisma/client";
+import { accountTotals } from "@/lib/ledger-totals";
 import { prisma } from "@/lib/prisma";
 import { monthRange } from "@/lib/dates";
 import { deriveNetWorth, deriveSavingsRatePct } from "@/lib/ledger-math";
@@ -32,23 +34,22 @@ export interface FinancialSummary {
 }
 
 /** Total cash across all accounts = SUM(amount) of ACTIVE transactions. VOIDed rows never count. */
-export async function getTotalCashFils(householdId: string): Promise<number> {
-  const result = await prisma.transaction.aggregate({
-    where: { householdId, status: "ACTIVE" },
-    _sum: { amount: true },
-  });
-  return result._sum.amount ?? 0;
+export async function getTotalCashFils(householdId: string, db: Prisma.TransactionClient = prisma): Promise<number> {
+  const totals = await accountTotals(householdId, db);
+  const result = [...totals.values()].reduce((sum, value) => sum + value, 0);
+  if (!Number.isSafeInteger(result)) throw new Error("Cash total exceeds the supported exact integer range.");
+  return result;
 }
 
 /** Total assets = sum of the latest valuation for each active asset (or purchase value if none yet). */
-export async function getTotalAssetsFils(householdId: string): Promise<number> {
-  const assets = await listAssets(householdId);
+export async function getTotalAssetsFils(householdId: string, db: Prisma.TransactionClient = prisma): Promise<number> {
+  const assets = await listAssets(householdId, db);
   return assets.reduce((sum, a) => sum + a.currentValueFils, 0);
 }
 
 /** Total liabilities = sum of each loan's derived remaining balance. */
-export async function getTotalLiabilitiesFils(householdId: string): Promise<number> {
-  const loans = await listLoans(householdId);
+export async function getTotalLiabilitiesFils(householdId: string, db: Prisma.TransactionClient = prisma): Promise<number> {
+  const loans = await listLoans(householdId, db);
   return loans.reduce((sum, l) => sum + l.remainingBalanceFils, 0);
 }
 
@@ -56,21 +57,22 @@ export async function getTotalLiabilitiesFils(householdId: string): Promise<numb
 /** Monthly income and spending. Loan principal reduces debt, not spending. */
 export async function getMonthlyFlow(
   householdId: string,
-  ref: Date = new Date()
+  ref: Date = new Date(),
+  db: Prisma.TransactionClient = prisma
 ): Promise<{ incomeFils: number; expensesFils: number }> {
   const { start, end } = monthRange(ref);
 
   const [income, expenses] = await Promise.all([
-    prisma.transaction.aggregate({
+    db.transaction.findMany({
       where: {
         householdId,
         type: "INCOME",
         status: "ACTIVE",
         date: { gte: start, lt: end },
       },
-      _sum: { amount: true },
+      select: { amount: true },
     }),
-    prisma.transaction.findMany({
+    db.transaction.findMany({
       where: {
         householdId,
         type: "EXPENSE",
@@ -85,7 +87,7 @@ export async function getMonthlyFlow(
   ]);
 
   return {
-    incomeFils: income._sum.amount ?? 0,
+    incomeFils: income.reduce((sum, entry) => sum + entry.amount, 0),
     expensesFils: expenses.reduce(
       (total, transaction) =>
         total + Math.abs(transaction.amount) - (transaction.loanPayment?.principal ?? 0),
@@ -98,12 +100,12 @@ export async function getMonthlyFlow(
 export async function getFinancialSummary(
   householdId: string
 ): Promise<FinancialSummary> {
-  const [cashFils, assetsFils, liabilitiesFils, flow] = await Promise.all([
-    getTotalCashFils(householdId),
-    getTotalAssetsFils(householdId),
-    getTotalLiabilitiesFils(householdId),
-    getMonthlyFlow(householdId),
-  ]);
+  const [cashFils, assetsFils, liabilitiesFils, flow] = await prisma.$transaction(tx => Promise.all([
+    getTotalCashFils(householdId, tx),
+    getTotalAssetsFils(householdId, tx),
+    getTotalLiabilitiesFils(householdId, tx),
+    getMonthlyFlow(householdId, new Date(), tx),
+  ]));
 
   const netWorthFils = deriveNetWorth(cashFils, assetsFils, liabilitiesFils);
   const savingsRatePct = deriveSavingsRatePct(flow.incomeFils, flow.expensesFils);

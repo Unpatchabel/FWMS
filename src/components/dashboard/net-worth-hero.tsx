@@ -18,7 +18,7 @@ export function NetWorthHero({
   assetsFils: number;
   liabilitiesFils: number;
 }) {
-  const { currency, format: formatAED, compact: formatAEDCompact } = useMoney();
+  const { currency, format: formatAED } = useMoney();
   return (
     <section className="relative min-w-0 overflow-hidden rounded-card border border-beige-border bg-surface px-5 py-6 shadow-card sm:px-8 sm:py-8">
       <p className="text-sm uppercase tracking-widest text-ink-soft">

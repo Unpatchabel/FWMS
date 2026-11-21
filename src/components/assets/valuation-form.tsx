@@ -3,7 +3,7 @@
 import { useCurrency } from "@/components/currency-context";
 
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { recordAssetValuationAction } from "@/actions/assets";
@@ -24,6 +24,7 @@ export function ValuationForm({
   onSuccess: () => void;
 }) {
   const currency = useCurrency();
+  const formId = useId();
   const [valueAed, setValueAed] = useState("");
   const [valuationDate, setValuationDate] = useState(todayIso());
   const [source, setSource] = useState("estimate");
@@ -61,8 +62,8 @@ export function ValuationForm({
       </p>
 
       <div>
-        <label className="block text-sm text-ink-soft mb-1">New value ({currency})</label>
-        <Input
+        <label htmlFor={`${formId}-0`} className="block text-sm text-ink-soft mb-1">New value ({currency})</label>
+        <Input id={`${formId}-0`}
           inputMode="decimal"
           placeholder="0.00"
           value={valueAed}
@@ -72,8 +73,8 @@ export function ValuationForm({
       </div>
 
       <div>
-        <label className="block text-sm text-ink-soft mb-1">As of date</label>
-        <Input
+        <label htmlFor={`${formId}-1`} className="block text-sm text-ink-soft mb-1">As of date</label>
+        <Input id={`${formId}-1`}
           type="date"
           value={valuationDate}
           onChange={(e) => setValuationDate(e.target.value)}
@@ -82,10 +83,10 @@ export function ValuationForm({
       </div>
 
       <div>
-        <label className="block text-sm text-ink-soft mb-1">
+        <label htmlFor={`${formId}-2`} className="block text-sm text-ink-soft mb-1">
           Source <span className="text-silver-muted">(optional)</span>
         </label>
-        <Input
+        <Input id={`${formId}-2`}
           placeholder="estimate, appraisal, market\u2026"
           value={source}
           onChange={(e) => setSource(e.target.value)}
@@ -94,7 +95,7 @@ export function ValuationForm({
       </div>
 
       {error && (
-        <p className="text-sm text-danger bg-danger-soft rounded-lg px-3 py-2">{error}</p>
+        <p role="alert" className="text-sm text-danger bg-danger-soft rounded-lg px-3 py-2">{error}</p>
       )}
 
       <Button type="submit" disabled={saving || !valueAed.trim()} className="w-full">

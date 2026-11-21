@@ -1,3 +1,4 @@
+import { categoryCreateSchema } from "@/lib/validators";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import type { CategoryCreateInput } from "@/lib/validators";
@@ -30,6 +31,7 @@ export async function createCategory(
   userId: string,
   input: CategoryCreateInput
 ) {
+  input = categoryCreateSchema.parse(input);
   const nameLower = input.name.toLowerCase();
   const sameTypeCategories = await prisma.category.findMany({
     where: { householdId, type: input.type },

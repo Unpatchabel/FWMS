@@ -1,0 +1,1 @@
+Desktop smoke test passed: migration, localhost server, and first-run owner screen.

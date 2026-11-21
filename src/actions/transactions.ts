@@ -11,6 +11,8 @@ import {
 import type { ActionResult } from "./types";
 
 function refreshLedgerPages() {
+  revalidatePath("/accounts");
+  revalidatePath("/reports");
   revalidatePath("/dashboard");
   revalidatePath("/income");
   revalidatePath("/expenses");

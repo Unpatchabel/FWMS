@@ -2,14 +2,14 @@ import { LoginForm } from "./login-form";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { isInstallationConfigured } from "@/services/setup.service";
-import { getOwnerUsername } from "@/services/account.service";
+
 
 export const dynamic = "force-dynamic";
 
 export default async function LoginPage() {
   if (!await isInstallationConfigured()) redirect("/setup");
   if (await getCurrentUser()) redirect("/dashboard");
-  const username = await getOwnerUsername();
+
   return (
     <main className="min-h-screen grid lg:grid-cols-2">
       {/* Brand panel — legacy/trust side of the identity. */}
@@ -48,7 +48,7 @@ export default async function LoginPage() {
             <p className="text-ink-soft text-sm">My Finances</p>
           </div>
           <p className="text-sm text-ink-soft">Welcome back</p>
-          <h2 className="font-display text-3xl text-ink leading-tight break-words">{username}</h2>
+          <h2 className="font-display text-3xl text-ink leading-tight break-words">Sign in</h2>
           <p className="text-ink-soft text-sm mt-1 mb-6">
             Sign in to your private dashboard.
           </p>

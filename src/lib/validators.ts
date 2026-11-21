@@ -14,7 +14,7 @@ export const usernameSchema = z.string().trim().min(1, "Enter a username")
 
 export const loginSchema = z.object({
   username: usernameSchema,
-  password: z.string().min(1, "Password is required"),
+  password: z.string().min(1, "Password is required").max(256, "Password is too long"),
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
@@ -66,13 +66,13 @@ const signedAmountAed = z
 
 /** A strictly positive ledger amount (income/expense entry — sign is applied server-side). */
 const positiveAmountAed = signedAmountAed.refine(
-  (v) => aedToFils(v) > 0,
+  (v) => { try { return aedToFils(v) > 0; } catch { return false; } },
   "Enter an amount greater than zero"
 );
 
 /** A ledger amount that must be zero or more (e.g. a loan's opening balance). */
 const nonNegativeAmountAed = signedAmountAed.refine(
-  (v) => aedToFils(v) >= 0,
+  (v) => { try { return aedToFils(v) >= 0; } catch { return false; } },
   "Enter an amount of zero or more"
 );
 

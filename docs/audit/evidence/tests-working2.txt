@@ -1,0 +1,77 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> fwms@0.1.0 test
+> vitest run
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+  - ESM syntax in a file loaded as CommonJS (tests/setup/test-db-url.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v4.1.12 /workspace/scratch/7c8fb312d368/FWMS-main
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": SQLite database "test.db" at "file:/workspace/scratch/7c8fb312d368/FWMS-main/prisma/test.db"
+
+4 migrations found in prisma/migrations
+
+Applying migration `20260709054121_npm_run_db_seed`
+Applying migration `20260923170000_family_session_version`
+Applying migration `20260924180000_owner_username_only`
+Applying migration `20261121000100_ledger_integrity`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20260709054121_npm_run_db_seed/
+    └─ migration.sql
+  └─ 20260923170000_family_session_version/
+    └─ migration.sql
+  └─ 20260924180000_owner_username_only/
+    └─ migration.sql
+  └─ 20261121000100_ledger_integrity/
+    └─ migration.sql
+      
+All migrations have been successfully applied.
+ ❯ tests/integration/transfers.test.ts (3 tests | 1 failed) 86ms
+     × rejects a transfer to the same account 16ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/integration/transfers.test.ts > account transfers > rejects a transfer to the same account
+AssertionError: expected error to be instance of TransactionValidationError
+
+- Expected:
+[Function TransactionValidationError]
+
++ Received:
+ZodError {
+  "message": "[
+  {
+    \"code\": \"custom\",
+    \"path\": [
+      \"toAccountId\"
+    ],
+    \"message\": \"Choose two different accounts\"
+  }
+]",
+  "name": "ZodError",
+}
+
+ ❯ tests/integration/transfers.test.ts:78:8
+     76|       fromAccountId: account.id, toAccountId: account.id,
+     77|       amountAed: "10.00", date: "2026-01-20", description: "",
+     78|     })).rejects.toThrow(TransactionValidationError);
+       |        ^
+     79|     expect(await listTransfers(household.id)).toHaveLength(0);
+     80|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 13 passed (14)
+      Tests  1 failed | 85 passed (86)
+   Start at  21:50:16
+   Duration  10.00s (transform 240ms, setup 0ms, import 1.38s, tests 5.21s, environment 2ms)
+

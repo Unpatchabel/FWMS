@@ -1,48 +1,45 @@
-# Desktop installer workflow (maintainers)
+# Desktop release validation
 
-The desktop version bundles a local Next.js server, Electron, and Prisma's
-platform-specific migration engine. The user installs the app and clicks
-**Start FWMS**. First launch applies migrations to a new SQLite database,
-generates a private authentication secret, and opens the owner signup in the
-application window. Reopening the app keeps the same database and secret.
+The application bundles Electron, a standalone Next server, SQLite through Prisma, and the platform-specific Prisma migration engine. The launcher creates private per-user files and applies migrations before opening setup/login. Reports live in the OS Documents/FWMS-Recent-Docs directory. Quit the application to stop the child server; macOS can keep it running after the last window closes.
 
-Data lives in Electron's per-user application data directory, outside Git and
-outside the installation directory. Updating or removing the application must
-not delete that directory. Saved reports live in `Documents/FWMS-Recent-Docs`.
+## Build and test
 
-## Produce test installers
+Use Node 22.13+ or Node 24 on the target OS/architecture:
 
-Open the repository's **Actions → Build FWMS desktop installers → Run workflow**.
-The jobs build on Apple Silicon macOS, Intel macOS, and Windows. Each job runs
-the existing tests and boots the packaged server against a fresh database.
-Download the `.dmg` or `.exe` from the workflow's artifacts and test it on
-that operating system. The temporary workflow artifacts are not a public
-distribution channel.
+```bash
+npm ci
+npm run db:generate
+npm run typecheck
+npm run lint
+npm test
+npm run desktop:smoke
+npm run desktop:package
+node desktop/verify-package.cjs
+```
 
-Mac test artifacts use an ad-hoc signature and the CI job checks that the
-packaged app's signature is structurally valid. Gatekeeper does not trust
-ad-hoc signatures from downloads, so a Mac tester may still need to approve
-the app in System Settings → Privacy & Security. The exact steps for testers,
-including how to find the correct Apple Silicon or Intel artifact, are in the
-README's [macOS test installation section](../README.md#install-a-macos-test-build).
-Do not tell users to disable Gatekeeper or remove quarantine globally.
+The manual **Build FWMS desktop installers** GitHub workflow targets Apple Silicon macOS, Intel macOS and Windows x64. It builds and uploads temporary artifacts, not a published Release. Run it on the actual repository and confirm that each runner label is available to your account. Local Linux evidence is not evidence that those workflow runs have succeeded.
 
-Developers can run `npm ci`, `npm run desktop:smoke`, and
-`npm run desktop:package` on a supported build machine. Packaging must run
-on each target OS so Prisma includes that OS's native engines. Node.js is
-only required to *build* the installer; packaged users do not need it.
+For a Linux unpacked validation build:
 
-## Release gate
+```bash
+npm run build
+node desktop/prepare.cjs
+npx electron-builder --config desktop/builder.yml --linux dir --publish never
+node desktop/verify-package.cjs
+```
 
-Before offering installers to nontechnical users, sign Windows builds and
-sign/notarize the macOS builds with the appropriate developer credentials.
-Replace the test-only `mac.identity: '-'` in `desktop/builder.yml` with a
-Developer ID signing configuration before publishing a Mac Release.
-Unsigned macOS downloads can be blocked by Gatekeeper, and unsigned Windows
-builds can trigger SmartScreen. Test the signed `.dmg` and `.exe` on clean
-machines, then attach them to a GitHub Release. The repo clone remains the
-technical source distribution; the Release download is the ordinary install
-path. Signing credentials must be kept out of this repository.
+The package verifier checks server/static/native-engine presence and boots the **packaged executable in Node mode** against a temporary database. It does not exercise the Electron window, click the launcher or validate native installation/uninstallation. The main frame/IPC policy has unit tests, but full platform UI testing remains a release gate.
 
-The application binds only to `127.0.0.1` on a temporary port. No public
-hosting is configured. Closing FWMS stops its bundled server.
+## Security boundaries
+
+The renderer has node integration disabled, context isolation and sandboxing enabled. Permission checks/requests, new windows and webview attachment are denied. Navigation remains on the exact launcher or app loopback origin. Both IPC handlers validate the sender WebContents and main frame before starting the server or opening the fixed report directory.
+
+The server binds to 127.0.0.1 on a temporary port and authenticates all financial access. Other local processes can connect to it; this is not an isolated private socket. FWMS_DESKTOP=1 permits non-Secure HttpOnly cookies for that HTTP loopback process only. Do not reuse this flag for public web hosting. Protect OS user data and auth.secret.
+
+Packaging excludes root environment files and SQLite files from standalone resources. Before distributing any package, inspect the unpacked tree for environment files, databases, exported records, private build paths and unexpected dependencies. Never package directly from a directory containing real financial records.
+
+## Native release gates
+
+The default macOS identity is ad-hoc (`'-'`), suitable for test builds, not trusted distribution. Before a public macOS release, configure Developer ID signing and notarization and verify Gatekeeper behavior on a clean machine. Sign Windows installers and test SmartScreen behavior with your intended certificate. Keep signing credentials in protected CI secrets, never source control or PR workflows.
+
+Test initial setup, sign-in/out, credential changes, restart persistence, reports, financial reconciliation, update with existing data, and uninstall behavior on each supported platform. Confirm that updating or uninstalling does not delete the user's private database or report directory. Record exact versions, checksums and results before publishing a GitHub Release. Do not ask users to disable Gatekeeper or other OS security controls globally.

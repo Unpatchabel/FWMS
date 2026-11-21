@@ -12,7 +12,7 @@ import { prisma } from "@/lib/prisma";
  */
 export async function exportHouseholdData(householdId: string) {
   const [household, users, accounts, categories, transactions, assets, loans, goals, auditLogs] =
-    await Promise.all([
+    await prisma.$transaction([
       prisma.household.findUnique({ where: { id: householdId } }),
       prisma.user.findMany({
         where: { householdId },

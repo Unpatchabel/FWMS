@@ -26,7 +26,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     where: { id: session.userId, isActive: true, role: "OWNER" },
     select: { id: true, name: true, role: true, householdId: true, sessionVersion: true },
   });
-  if (!user || user.role !== "OWNER" || session.sessionVersion !== user.sessionVersion) return null;
+  if (!user || user.role !== "OWNER" || session.householdId !== user.householdId || session.sessionVersion !== user.sessionVersion) return null;
 
   // Legacy MEMBER/VIEWER accounts are denied without deleting their history.
   return {

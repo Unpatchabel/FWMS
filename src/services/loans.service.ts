@@ -1,3 +1,4 @@
+import { loanCreateSchema, loanPaymentCreateSchema } from "@/lib/validators";
 import { prisma } from "@/lib/prisma";
 import { aedToFils } from "@/lib/money";
 import { logAudit } from "@/lib/audit";
@@ -33,8 +34,8 @@ export interface LoanWithBalance {
  * recomputing it, so there is exactly one definition of "how much is left on
  * a loan."
  */
-export async function listLoans(householdId: string): Promise<LoanWithBalance[]> {
-  const loans = await prisma.loan.findMany({
+export async function listLoans(householdId: string, db: Prisma.TransactionClient = prisma): Promise<LoanWithBalance[]> {
+  const loans = await db.loan.findMany({
     where: { householdId, isActive: true },
     orderBy: { createdAt: "asc" },
     include: { payments: { select: { principal: true } } },
@@ -62,6 +63,7 @@ export async function createLoan(
   userId: string,
   input: LoanCreateInput
 ) {
+  input = loanCreateSchema.parse(input);
   const originalAmountFils = aedToFils(input.originalAmountAed);
   const openingBalanceFils = aedToFils(input.openingBalanceAed);
   const monthlyPaymentFils =
@@ -158,6 +160,7 @@ export async function recordLoanPayment(
   userId: string,
   input: LoanPaymentCreateInput
 ) {
+  input = loanPaymentCreateSchema.parse(input);
   const loan = await prisma.loan.findFirst({
     where: { id: input.loanId, householdId, isActive: true },
   });

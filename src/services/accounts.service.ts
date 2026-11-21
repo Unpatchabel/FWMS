@@ -1,3 +1,5 @@
+import { accountCreateSchema } from "@/lib/validators";
+import { accountTotals } from "@/lib/ledger-totals";
 import { prisma } from "@/lib/prisma";
 import { aedToFils } from "@/lib/money";
 import { logAudit } from "@/lib/audit";
@@ -22,21 +24,13 @@ export interface AccountWithBalance {
 export async function listAccounts(
   householdId: string
 ): Promise<AccountWithBalance[]> {
-  const [accounts, sums] = await Promise.all([
+  const [accounts, balanceByAccount] = await Promise.all([
     prisma.account.findMany({
       where: { householdId, isActive: true },
       orderBy: { createdAt: "asc" },
     }),
-    prisma.transaction.groupBy({
-      by: ["accountId"],
-      where: { householdId, status: "ACTIVE" },
-      _sum: { amount: true },
-    }),
+    accountTotals(householdId),
   ]);
-
-  const balanceByAccount = new Map(
-    sums.map((s) => [s.accountId, s._sum.amount ?? 0])
-  );
 
   return accounts.map((a) => ({
     id: a.id,
@@ -60,6 +54,7 @@ export async function createAccount(
   userId: string,
   input: AccountCreateInput
 ): Promise<AccountWithBalance> {
+  input = accountCreateSchema.parse(input);
   const openingFils =
     input.openingBalanceAed && input.openingBalanceAed !== ""
       ? aedToFils(input.openingBalanceAed)

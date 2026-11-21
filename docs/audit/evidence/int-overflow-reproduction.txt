@@ -1,0 +1,9 @@
+Observed baseline Prisma 5.19.1 behavior before adding the amount guard:
+A disposable Transaction create attempted amount: 100000000000 (the old allowed maximum).
+The actual Prisma error was:
+
+Invalid `prisma.transaction.create()` invocation:
+
+Inconsistent column data: Conversion failed: Value 100000000000 does not fit in an INT column, try migrating the 'amount' column type to BIGINT
+
+Remediation keeps the existing Int data model, reduces new input to the actual supported range, and avoids narrowing SUM totals to Prisma Int. The regression suite stores maximum supported entries and verifies balances above Int32.

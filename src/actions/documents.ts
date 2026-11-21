@@ -11,6 +11,6 @@ export async function saveReportAction(month: string, format: "pdf" | "docx") {
     revalidatePath("/reports");
     return { ok: true as const, filename };
   } catch (error) {
-    return { ok: false as const, error: error instanceof Error ? error.message : "Unable to save report." };
+    return { ok: false as const, error: error instanceof Error && /^(Choose a valid month|PDF export cannot render)/.test(error.message) ? error.message : "Unable to save report. Check the server document directory permissions." };
   }
 }

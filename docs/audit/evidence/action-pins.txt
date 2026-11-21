@@ -1,0 +1,10 @@
+Upstream tag resolution observed with git ls-remote on 2026-11-21:
+
+$ git ls-remote https://github.com/actions/checkout.git refs/tags/v5
+fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 refs/tags/v5
+
+$ git ls-remote https://github.com/actions/setup-node.git refs/tags/v5
+a0853c24544627f65ddf259abe73b1d18a591444 refs/tags/v5
+
+$ git ls-remote https://github.com/actions/upload-artifact.git refs/tags/v6
+b7c566a772e6b6bfb58ed0dc250532a479d7789f refs/tags/v6

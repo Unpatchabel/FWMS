@@ -1,0 +1,28 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> fwms@0.1.0 setup
+> node scripts/migrate.cjs
+
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": SQLite database "ledger.db" at "file:/tmp/fwms-fresh-check/ledger.db"
+
+4 migrations found in prisma/migrations
+
+Applying migration `20260709054121_npm_run_db_seed`
+Applying migration `20260923170000_family_session_version`
+Applying migration `20260924180000_owner_username_only`
+Applying migration `20261121000100_ledger_integrity`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20260709054121_npm_run_db_seed/
+    └─ migration.sql
+  └─ 20260923170000_family_session_version/
+    └─ migration.sql
+  └─ 20260924180000_owner_username_only/
+    └─ migration.sql
+  └─ 20261121000100_ledger_integrity/
+    └─ migration.sql
+      
+All migrations have been successfully applied.

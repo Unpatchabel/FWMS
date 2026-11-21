@@ -4,6 +4,9 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { authenticateOwner } from "@/services/account.service";
 import { SESSION_COOKIE, createSessionToken, sessionCookieOptions } from "@/lib/session";
+import { consumeLoginAttempt } from "@/lib/login-limit";
+import { getCurrentUser } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { loginSchema } from "@/lib/validators";
 import { setupSchema } from "@/lib/validators";
 import { createOwnerInstallation } from "@/services/setup.service";
@@ -40,6 +43,7 @@ export async function loginAction(input: {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input." };
   }
 
+  if (!consumeLoginAttempt()) return { ok: false, error: "Too many sign-in attempts. Try again in five minutes." };
   const user = await authenticateOwner(parsed.data);
   if (!user) {
     return { ok: false, error: "Incorrect username or password." };
@@ -62,6 +66,8 @@ export async function loginAction(input: {
  * form's `action` prop — no client JavaScript needed for logout at all.
  */
 export async function logoutAction(): Promise<void> {
+  const user = await getCurrentUser();
+  if (user) await prisma.user.update({ where: { id: user.id }, data: { sessionVersion: { increment: 1 } } });
   (await cookies()).set(SESSION_COOKIE, "", sessionCookieOptions(0));
   redirect("/login");
 }

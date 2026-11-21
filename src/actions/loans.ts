@@ -11,6 +11,8 @@ import {
 import type { ActionResult } from "./types";
 
 function refreshLoanPages() {
+  revalidatePath("/accounts");
+  revalidatePath("/reports");
   revalidatePath("/dashboard");
   revalidatePath("/loans");
 }

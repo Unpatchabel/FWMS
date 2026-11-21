@@ -1,0 +1,11 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+  • electron-builder  version=26.18.0 os=6.18.57
+  • loaded configuration  file=/workspace/scratch/7c8fb312d368/FWMS-main/desktop/builder.yml
+  • executing @electron/rebuild  electronVersion=44.11.5 arch=x64 buildFromSource=false workspaceRoot=/workspace/scratch/7c8fb312d368/FWMS-main projectDir=./ appDir=./
+  • installing native dependencies  arch=x64
+  • completed installing native dependencies
+  • packaging       platform=linux arch=x64 electron=44.11.5 appOutDir=dist-desktop/linux-unpacked
+  • downloaded      label=electron progress=100%
+  • downloaded electron zip extracted successfully  output=/workspace/scratch/7c8fb312d368/FWMS-main/dist-desktop/linux-unpacked
+  • searching for node modules  pm=npm searchDir=/workspace/scratch/7c8fb312d368/FWMS-main
+  • duplicate dependency references  dependencies=["@prisma/get-platform@5.19.1","react-dom@19.3.0","react-dom@19.3.0","react-dom@19.3.0","loose-envify@1.4.0","prop-types@15.8.1","react-dom@19.3.0","d3-array@3.2.4","d3-interpolate@3.0.1","d3-time@3.1.0","d3-time@3.1.0","d3-array@3.2.4"]
