@@ -26,7 +26,7 @@
     "test:http": "node scripts/http-smoke.cjs"
   },
   "dependencies": {
-    "@prisma/client": "5.19.1",
+    "@prisma/client": "7.10.1",
     "bcryptjs": "2.4.3",
     "clsx": "2.1.1",
     "date-fns": "3.6.0",
